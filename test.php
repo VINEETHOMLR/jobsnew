@@ -1,1 +1,1 @@
-Test
+<?php echo "hai";?>
