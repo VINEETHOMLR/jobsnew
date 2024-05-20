@@ -32,7 +32,7 @@ define('BASEURL', $config['baseUrl']);
 //Mobile Constants
 //define('MOB_PATH', $config['mobWebPath']);
 //define('MOB_IMG', MOB_PATH . 'img/');
-define('BOUPLOADPATH', $config['boUrl'].'web/uploads/');
+//define('BOUPLOADPATH', $config['boUrl'].'web/uploads/');
 
 $userPrefix = isset($config['userPrefix']) ? $config['userPrefix'] : 's';
 define('USER_PREFIX', $userPrefix);
