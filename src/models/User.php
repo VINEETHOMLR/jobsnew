@@ -386,7 +386,7 @@ class User extends Database
         if(!empty($userId)){
             if($role_id == '2') { //jobseeker
 
-                $sql = "INSERT INTO user_extra SET user_id='$user_id',category='',address='',id_photo='',basic_charge='0',created_at='$time',updated_at='$time'";
+                $sql = "INSERT INTO user_extra SET user_id='$userId',category='',address='',id_photo='',basic_charge='0',created_at='$time',updated_at='$time'";
                 $this->query($sql);
                 $response = $this->execute();
 
