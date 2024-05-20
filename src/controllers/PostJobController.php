@@ -34,6 +34,8 @@ class PostJobController extends Controller
 
 
         $input   = $_POST;
+
+        //print_r($_FILES['images']);die();
         
         $userObj = Raise::$userObj;
         $userId  = $userObj['id'];
@@ -45,8 +47,8 @@ class PostJobController extends Controller
         $description    = issetGet($input,'description','');
         $category_id    = issetGet($input,'category_id','');
         
-        $images   = issetGet($input,'images','');
-        
+        $images         = $_FILES['images']['name'];
+        print_r($_FILES['images']);die();
 
         if(empty($userId)) {
             return $this->renderAPIError(Raise::t('common','err_userid_required'),'');   
@@ -66,7 +68,7 @@ class PostJobController extends Controller
 
         if(!empty($images)) {
 
-            $counts = count($images);
+            $counts = 1;
 
             for($i=1;$i<$count;$i++)
             {
@@ -97,8 +99,8 @@ class PostJobController extends Controller
         $params['description']      = $description;
         $params['category_id']      = $category_id;
 
-        $params['profile_pic'] = json_encode($imagearray);
-        $params['user_id']     = $userId;
+        $params['images']           = json_encode($imagearray);
+        $params['user_id']          = $userId;
 
         if($this->jobs->insertRecord($params))
         {

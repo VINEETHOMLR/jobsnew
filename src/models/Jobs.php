@@ -124,7 +124,7 @@ class Jobs extends Database
 
     function insertRecord($params){
 
-        $query = "INSERT INTO $this->tableName (`title`,`user_id`,`latitude`,`longitude`,`location`,`images`,`description`,`status`,`category_id`,`status`,`created_at`) VALUES (:title,:user_id,:latitude,:longitude,:location,:images,:description,:status,:category_id,:status,:created_at)";
+        $query = "INSERT INTO $this->tableName (`title`,`user_id`,`latitude`,`longitude`,`location`,`images`,`description`,`status`,`category_id`,`created_at`) VALUES (:title,:user_id,:latitude,:longitude,:location,:images,:description,:status,:category_id,:created_at)";
             $this->query($query);
             $this->bind(':title',       $params['title']);
             $this->bind(':user_id',     $params['user_id']);
