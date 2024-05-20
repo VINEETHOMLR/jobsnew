@@ -26,14 +26,16 @@ class LoginController extends Controller
     }
 
     
-    public function actionLogin()
+    public function actionIndex()
     {
       
         
        // $input      = Router::postAll();
         $input      = $_POST;
-        $email  = issetGet($input,'email','');
-        $password  = issetGet($input,'password','');
+        $email      = issetGet($input,'email','');
+        $password   = issetGet($input,'password','');
+        $device_id  = issetGet($input,'device_id','');
+        $role_id    = issetGet($input,'role_id','');
 
         if(empty($email)) {
             return $this->renderAPIError(Raise::t('register','err_email_required'),'');  
@@ -47,7 +49,15 @@ class LoginController extends Controller
             return $this->renderAPIError(Raise::t('register','err_password_required_text'),''); 
         }
 
-        $userDetails = (new User)->checkLogin($email,$password);
+        if(empty($device_id)) {
+            return $this->renderAPIError("Please pass device id to proceed",''); 
+        }
+
+        if(empty($role_id)) {
+            return $this->renderAPIError("Please pass role id to proceed",''); 
+        }
+
+        $userDetails = (new User)->checkLogin($email,$password,$role_id);
 
 
 
@@ -62,23 +72,8 @@ class LoginController extends Controller
 
 
 
-       // $user_info = (new UserInfo)->findByPK($user['id'])->convertArray();
-       /* $driver_info = (new Driver_user)->getDetails($driver['id']);
-
-
-        echo "<pre>";
-        print_r($driver_info);exit;
-*/
-
-
         $token = $this->generateToken($userDetails['id']);
-
-
-
-
-
         $userSystemInfo = Helper::getUserSystemInfo();
-
 
 
 
@@ -113,11 +108,11 @@ class LoginController extends Controller
 
 
 
-        $ip['module']   = 'Login';
-        $ip['action']   = 'login';
-        $ip['activity'] = "User login";
-        $ip['user_id']  = $userDetails['id'];
-        (new UserActivityLog)->saveUserLog($ip);
+        // $ip['module']   = 'Login';
+        // $ip['action']   = 'login';
+        // $ip['activity'] = "User login";
+        // $ip['user_id']  = $userDetails['id'];
+        // (new UserActivityLog)->saveUserLog($ip);
 
        
         $redisKey = 'ut-'.$token;
@@ -134,7 +129,7 @@ class LoginController extends Controller
 
         $data = array(
                     "id"=> (string)$userDetails['id'],
-                    "name"=> (string)$userDetails['fullname'],
+                    "name"=> (string)$userDetails['name'],
                     "status"=> "1",
                     "last_login_time"=> (string)$userDetails['last_login_time'],
                     "last_login_ip"=> (string)$userDetails['last_login_ip'],

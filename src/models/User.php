@@ -28,7 +28,7 @@ class User extends Database
         $this->tableName = "user";
 
         $this->columns = [
-                            'id',                       
+                            'user_id',                       
                             'username',                 
                             'fullname',                 
                             'old_password',             
@@ -48,8 +48,7 @@ class User extends Database
                             'created_by',               
                             'created_ip',               
                             'updated_at',               
-                            'updated_by',               
-                            'updated_ip'           
+                                     
                         ];
     }
 
@@ -60,7 +59,7 @@ class User extends Database
     public static function attrs()
     {
         return   [
-                    'id',                       
+                    'user_id',                       
                     'username',                 
                     'fullname',                 
                     'old_password',             
@@ -80,8 +79,7 @@ class User extends Database
                     'created_by',               
                     'created_ip',               
                     'updated_at',               
-                    'updated_by',               
-                    'updated_ip'           
+                            
                 ];
     }
 
@@ -599,11 +597,13 @@ class User extends Database
         return false;
     } 
 
-    public function checkLogin($username,$password) {
+    public function checkLogin($username,$password,$role_id) {
 
         $pass = md5($password); 
 
-        $user_info = $this->callsql("SELECT * FROM $this->tableName WHERE email='$username' AND password='$pass' AND status='1' LIMIT 1 ","row");
+        $user_info = $this->callsql("SELECT * FROM $this->tableName WHERE email='$username' AND password='$pass' AND status='1' AND role_id='$role_id'  LIMIT 1 ","row");
+
+
 
         if(empty($user_info)){
 
@@ -613,23 +613,7 @@ class User extends Database
         return $user_info;
     }
 
-      public function checkSocialLogin($param) {
-
-
-        $email = $param['email'];
-        $register_type = $param['register_type'];
-        $user_unique_id = $param['user_unique_id'];
-       
-
-        $user_info = $this->callsql("SELECT * FROM $this->tableName WHERE email='$email' AND register_type='$register_type' AND user_unique_id='$user_unique_id' AND status='1' LIMIT 1 ","row");
-
-        if(empty($user_info)){
-
-            return []; 
-        }
-
-        return $user_info;
-    }
+    
     
     public function updateNopk($input_params,$where_params) {
        // $input_params = $this->getValAttrs();
