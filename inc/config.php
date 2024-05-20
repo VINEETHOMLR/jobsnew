@@ -27,21 +27,21 @@ define('APISECRET', $apisecret);
 define('BASEPATH', $config['basePath']);
 define('ENV', $config['env']);
 define('BASEURL', $config['baseUrl']);
-define('WEB_PATH', $config['baseUrl'] . 'web/');
-define('IMG_PATH', WEB_PATH . 'img/');
+//define('WEB_PATH', $config['baseUrl'] . 'web/');
+//define('IMG_PATH', WEB_PATH . 'img/');
 //Mobile Constants
-define('MOB_PATH', $config['mobWebPath']);
-define('MOB_IMG', MOB_PATH . 'img/');
+//define('MOB_PATH', $config['mobWebPath']);
+//define('MOB_IMG', MOB_PATH . 'img/');
 define('BOUPLOADPATH', $config['boUrl'].'web/uploads/');
 
 $userPrefix = isset($config['userPrefix']) ? $config['userPrefix'] : 's';
 define('USER_PREFIX', $userPrefix);
 
 /*coin price */
-define('TRADE_API_HTTP_URL',$config['tradeApi']['httpApiUrl']);
-define('TRADE_API_SOCKET_URL',$config['tradeApi']['socketApiUrl']);
-define('TRADE_API_USER_ID',$config['tradeApi']['userID']);
-define('TRADE_API_AUTH_CODE',$config['tradeApi']['authCode']);
+// define('TRADE_API_HTTP_URL',$config['tradeApi']['httpApiUrl']);
+// define('TRADE_API_SOCKET_URL',$config['tradeApi']['socketApiUrl']);
+// define('TRADE_API_USER_ID',$config['tradeApi']['userID']);
+// define('TRADE_API_AUTH_CODE',$config['tradeApi']['authCode']);
 
 $adminEmail = isset($config['adminEmail']) ? $config['adminEmail'] : 'helpdesk@example.com';
 define('ADMIN_EMAIL', $adminEmail);
