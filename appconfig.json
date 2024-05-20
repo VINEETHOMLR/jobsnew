@@ -1,0 +1,64 @@
+{
+  "splashImage": "",
+  "base_url": [
+    ""
+  ],
+  "features": [
+    {
+      "enabled": false,
+      "key": "game"
+    },
+    {
+      "enabled": true,
+      "key": "deposit"
+    },
+    {
+      "enabled": true,
+      "key": "withdrawal"
+    },
+    {
+      "enabled": true,
+      "key": "swap"
+    },
+    {
+      "enabled": false,
+      "key": "financial"
+    }
+  ],
+  "currency": "$",
+  "customer_service_url": {
+     "email":"support@infinite-mail.info",
+     "website":"https://infite-tech.io",
+     "facebook":"www.facebook.com/infinitetech",
+     "twitter":"www.twitter.com/infinitetech"
+  },
+  "language": {
+     "en":"English",
+     "zh_chn":"Chinese Traditional",
+     "zh_hans":"Chinese Simplified",
+     "ja":"Japanese",
+     "vie":"Vietnamese",
+     "id":"Bahasa"
+  },
+  "versions": "2.0.0",
+  "update": {
+    "headerImage": "",
+    "title": "",
+    "description": "",
+    "footer": "",
+    "buttonTitle": "",
+    "buttonUrl": ""
+  },
+  "intro": {
+    "headerImage": "",
+    "title": "",
+    "description": "",
+    "footer": "",
+    "buttonTitle": "",
+    "buttonUrl": ""
+  },
+  "forceUrl": "",
+  "api_timeout_limit": "60",
+  "maintenanceUrl": "",
+  "maintenance": false
+}
