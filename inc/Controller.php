@@ -12,8 +12,8 @@ use inc\Raise;
 use src\lib\Helper as H;
 use src\lib\Router;
 use src\lib\Secure;
-use src\models\AuthLogin;
-use src\models\RememberMe;
+//use src\models\AuthLogin;
+//use src\models\RememberMe;
 
 class Controller
 {
