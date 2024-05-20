@@ -36,6 +36,7 @@ class RegisterController extends Controller
         $email            = issetGet($input,'email','');
         $password         = issetGet($input,'password','');
         $confirmpassword  = issetGet($input,'confirmpassword','');
+        $role             = issetGet($input,'role',''); //1- eployer,2- jobseeker
 
         if(empty($fullname)) {
             return $this->renderAPIError(Raise::t('register','err_fullname_required'),'');  
@@ -72,51 +73,30 @@ class RegisterController extends Controller
 
         }
 
-        $new_file = '';
-        if($_FILES){
-            if($_FILES['profile_pic']['size']!= 0 ){ 
+        if(empty($role)) {
 
-                     $filename   = $_FILES['profile_pic']['name'];
-                     $temp_name  = $_FILES['profile_pic']['tmp_name'];
-
-                     $path_parts  = pathinfo($filename);
-                     $extension   = $path_parts['extension'];
-                     $image_array = array('JPG','png','JPEG','jpeg','jpg');
-                     $new_file    = 'P'.time().rand().'.'.$extension;
-
-                     $target_file = BASEPATH."web/upload/profile/".$new_file;
-                     $FileType    = pathinfo($target_file,PATHINFO_EXTENSION);
-                     $path        = pathinfo($target_file);
-                     move_uploaded_file ($temp_name, $target_file);
-
-                     
-            }
+            return $this->renderAPIError("Please pass role to proceed",'');   
         }
+
+        if(!in_array($role, ['1','2'])) {
+
+            return $this->renderAPIError("Please pass valid role to proceed",'');   
+
+        }
+
+
+
+       
 
 
         $params  = [];
         $params['fullname']    = $fullname;
         $params['email']       = $email;
         $params['password']    = md5($password);
-        $params['profile_pic'] = $new_file;
         $params['status']      = 1;
-        //$params['email']    = $email;
+        $params['role_id']     = $role;
         if($response = $this->usermdl->registerUser($params)){
-
-
-            if($new_file) {
-
-                $data = [];
-                $data['user_id']     = $response;
-                $data['type']        = '3';
-                $data['affected_id'] = '';
-                $data['point']       = '50';
-                $this->usermdl->addPointLog($params);
-                $this->usermdl->addPoint($params);
-
-            }
-
-
+            
             return $this->renderAPI([], Raise::t('register','suc_register'), 'false', 'S01', 'true', 200);
 
         }else{
@@ -129,99 +109,9 @@ class RegisterController extends Controller
     }
 
 
-      public function actionSocialMediaReg(){
+     
 
 
-
-        $input            = $_POST;
-        $fullname         = issetGet($input,'fullname','');
-        $email            = issetGet($input,'email','');
-        $register_type    = issetGet($input,'register_type','');
-        $user_unique_id   = issetGet($input,'user_unique_id','');
-        $profile_pic   = issetGet($input,'profile_pic','');
-
-        if(empty($fullname)) {
-            return $this->renderAPIError(Raise::t('register','err_fullname_required'),'');  
-        }
-
-        if(empty($email)) {
-
-            return $this->renderAPIError(Raise::t('register','err_email_required'),'');   
-        }
-        if(!$this->validateEmail($email)){
-
-            return $this->renderAPIError(Raise::t('register','err_invalid_email_text'),'');    
-        }
-   
-        $userDetails = $this->usermdl->getUserByEmail($email);
-        if(!empty($userDetails)) {
-            
-            return $this->renderAPIError(Raise::t('register','err_email_exists'),'');
-        }
-  
-        if(empty($register_type)) {
-
-            return $this->renderAPIError(Raise::t('register','err_reg_type_required_text'),''); 
-        }
-
-        if(!in_array($register_type,[2,3,4])) {
-            return $this->renderAPIError(Raise::t('common','err_invalid_type'),''); 
-        }
-
-        if(empty($user_unique_id)) {
-            return $this->renderAPIError(Raise::t('register','err_user_unique_id_required_text'),''); 
-
-        }
-
-        $details = $this->usermdl->getUserByUniqueId($user_unique_id);
-        if(!empty($details)) {
-            
-            return $this->renderAPIError(Raise::t('register','err_uniq_id_exists'),'');
-        }
-
-
-        $params  = [];
-        $params['fullname']        = $fullname;
-        $params['email']           = $email;
-        $params['register_type']   = $register_type;
-        $params['user_unique_id']  = $user_unique_id;
-        $params['profile_pic']     = $profile_pic;
-        $params['status']          = 1;
-        if($response = $this->usermdl->registerUser($params)){
-
-            
-            if($profile_pic) {
-
-                $data = [];
-                $data['user_id']     = $response;
-                $data['type']        = '3';
-                $data['affected_id'] = '';
-                $data['point']       = '50';
-                $this->usermdl->addPointLog($params);
-                $this->usermdl->addPoint($params);
-
-            }
-             
-            return $this->renderAPI([], Raise::t('register','suc_register'), 'false', 'S01', 'true', 200);
-
-        }else{
-            
-            return $this->renderAPI([], Raise::t('register','err_failed_create_user_text'), 'false', '', 'true', 200);
-        }
-        return $this->renderAPI([], Raise::t('common','something_wrong_text'), 'false', '', 'true', 200);
-
-
-    }
-
-
-
-public function is_url($url){
-
-       if (filter_var($url, FILTER_VALIDATE_URL)) {
-            return true;
-        } 
-        return false;
-}
 
 public function validateEmail($email){
     

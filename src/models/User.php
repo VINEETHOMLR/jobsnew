@@ -356,12 +356,8 @@ class User extends Database
         $fullname     = !empty($params['fullname']) ? $params['fullname'] : '';
         $status       = !empty($params['status']) ? $params['status'] : '';
         $email        = !empty($params['email']) ? $params['email'] : '';
-        $profile_pic  = !empty($params['profile_pic']) ? $params['profile_pic'] : '';
-
-        $register_type   = !empty($params['register_type']) ? $params['register_type'] : '';
-        $user_unique_id  = !empty($params['user_unique_id']) ? $params['user_unique_id'] : '';
-
-        //$verificationCode = !empty($params['verificationCode']) ? $params['verificationCode'] : '';
+        
+        $role_id   = !empty($params['role_id']) ? $params['role_id'] : '';
         $time = time();
         
 
@@ -374,36 +370,37 @@ class User extends Database
             
 
 
-        $query = "INSERT INTO $this->tableName (`fullname`,`password`,`status`,`created_ip`,`created_at`,`created_by`,`email_verification_status`,`email_verify_time`,`email_verify_ip`,`email`,`profile_pic`,`register_type`,`user_unique_id`) VALUES (:fullname,:password,:status,:created_ip,:created_at,:created_by,:email_verification_status,:email_verify_time,:email_verify_ip,:email,:profile_pic,:register_type,:user_unique_id)";
-            $this->query($query);
-            //$this->bind(':username', $username);
-            $this->bind(':fullname', $fullname);
-            $this->bind(':password', ($password));
-            $this->bind(':status', $status);
-            $this->bind(':email', $email);
-            $this->bind(':register_type', $register_type);
-            $this->bind(':user_unique_id', $user_unique_id);
-            $this->bind(':created_ip', getClientIP());
-            $this->bind(':created_at', $time);
-            $this->bind(':created_by', '0');
-            $this->bind(':email_verification_status', '1');
-            $this->bind(':email_verify_time', $time);
-            $this->bind(':profile_pic', $profile_pic);
-            $this->bind(':email_verify_ip', getClientIP());
-
-            $this->execute();
-            $userId = $this->lastInsertId();
+        $query = "INSERT INTO $this->tableName (`name`,`password`,`role_id`,`email`,`status`,`created_at`) VALUES (:name,:password,:role_id,:email,:status,:created_at)";
+        $this->query($query);
+        //$this->bind(':username', $username);
+        $this->bind(':name', $fullname);
+        $this->bind(':password', ($password));
+        $this->bind(':role_id', $role_id);
+        $this->bind(':email', $email);
+        $this->bind(':status', $status);
+        $this->bind(':created_at', $time);
+        $response = $this->execute();
+        $userId = $this->lastInsertId();
 
 
-            if(!empty($userId)){
-               
-                return $userId;
-                  
-            }else{
-            
-                return false;
-                     
+        if(!empty($userId)){
+            if($role_id == '2') { //jobseeker
+
+                $sql = "INSERT INTO user_extra SET user_id='$user_id',category='',address='',id_photo='',basic_charge='0',created_at='$time',updated_at='$time'";
+                $this->query($sql);
+                $response = $this->execute();
+
             }
+            return $response; 
+
+
+            
+                  
+        }else{
+            
+            return false;
+                     
+        }
 
         
         return false;
