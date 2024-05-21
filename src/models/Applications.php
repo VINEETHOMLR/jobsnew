@@ -226,6 +226,81 @@ class Applications extends Database {
 
     }
 
+    public function getSavedRecords($filter){
+
+
+        $sql = $where_str = $select = '';
+        $where_str_array = array();
+
+        $user_id = !empty($filter['user_id']) ? $filter['user_id'] : '0';
+
+        
+        if(!empty($filter['page'])){
+            $page = !empty($filter['page'])?$filter['page']:'1';
+            $perPage = !empty($filter['perPage'])?$filter['perPage']:'10';
+        }
+
+        array_push($where_str_array,"  user_id =  ".$user_id." "); 
+
+
+        
+        $where_str = '1';
+        if (!empty($where_str_array)) {
+            $where_str = implode(' AND ', $where_str_array);
+        }
+
+        $select = ' id,post_id,job_seeker_id ';
+       
+        $pageStart = ($page - 1) * $perPage;
+
+        $limit = ' LIMIT '.$pageStart.','.$perPage;
+
+        
+        $orderby = ' ORDER BY id DESC ';
+        
+
+
+
+        $getTotal = $this->callsql('SELECT count(id) FROM saved_applicants  WHERE '.$where_str.' ','value');
+
+        $sql = 'SELECT  '.$select.'  
+        FROM 
+            saved_applicants 
+        WHERE 
+            '.$where_str.'  '.$orderby.' '.$limit.' ';
+
+       
+        $rows = $this->callsql($sql,"rows");
+        $resp = [];
+        if(!empty($rows)) {
+
+            foreach($rows as $index=>$value){
+                
+                $name = $this->callsql("SELECT name FROM  user  WHERE id=$value[job_seeker_id] ",'value');
+               
+                $resp[] = array('name'    => $name
+                               ); 
+
+            }
+            $totalPages = floor($getTotal/$perPage); 
+            if(($getTotal%$perPage)!=0){$totalPages = $totalPages+1;} 
+
+        }
+
+
+        $recordsFiltered = count($resp);
+
+       
+        $datarray['game_list']['recordsTotal']      = !empty($getTotal)?strval($getTotal):'0';
+        $datarray['game_list']['recordsFiltered']   = !empty($resp)?strval($recordsFiltered):'0';
+        $datarray['game_list']['totalPages']        = !empty($totalPages)?strval($totalPages):'0';
+        $datarray['game_list']['currentPage']       = !empty($getTotal)?strval($page):'0';
+        $datarray['game_list']['recordsList']       = !empty($resp) ? $resp :[];
+
+        return $datarray;
+
+    }
+
     
 
 

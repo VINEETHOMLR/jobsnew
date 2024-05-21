@@ -92,4 +92,35 @@ class ApplicantListController extends Controller
 
 
     }
+
+    public function actionSavedApplicants()
+    {
+
+        
+        $userObj        = Raise::$userObj;
+        $user_id        = $userObj['id'];
+        $input          = $_POST;
+
+        $page           = issetGet($input,'page',"1");
+        $perPage        = issetGet($input,'perPage','10');
+        
+        if(empty($user_id)) 
+        {
+            $this->renderAPIError("Invalid User");
+        }
+
+
+        $params = ['page' => $page ,  'perPage' => $perPage,  'user_id' => $user_id];
+
+
+        $List  = (new Applications)->getSavedRecords($params);
+
+
+        $status = 'true';
+        $show_alert = 'false';
+        $code = 'S13';
+        return $this->renderAPI($List, "Applicant Saved List", $show_alert, $code, $status, 200);
+
+
+    }
 }
