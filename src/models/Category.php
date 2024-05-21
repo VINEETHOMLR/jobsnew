@@ -116,9 +116,9 @@ class Category extends Database
 
             foreach ($response as $key => $info) {
                    
-                $response[$key]['icon'] = !empty($info['icon'])?BASEURL.'bo/web/upload/category/icon/'.$info['icon']:BASEURL.'bo/web/upload/category/icon/default.PNG';
+                $response[$key]['icon'] = !empty($info['icon'])?BASEURL.'bo/web/upload/category/icon/'.$info['icon']:BASEURL.'bo/web/upload/category/icon/default.png';
 
-                $response[$key]['image'] = !empty($info['image'])?BASEURL.'bo/web/upload/category/image/'.$info['image']:BASEURL.'bo/web/upload/category/image/default.PNG';
+                $response[$key]['image'] = !empty($info['image'])?BASEURL.'bo/web/upload/category/image/'.$info['image']:BASEURL.'bo/web/upload/category/image/default.png';
 
                 
             }

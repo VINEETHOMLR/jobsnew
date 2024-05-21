@@ -49,8 +49,8 @@ class HomeController extends Controller
         $FavList  = (new Category)->getFavCategory();
 
         
-        $data['AllCategory']  = $List;
-        $data['FavCategory']  = $FavList;
+        $data['AllCategory']        = $List;
+        $data['popularcategory']    = $FavList;
         $status = 'true';
         $show_alert = 'false';
         $code = 'S12';
