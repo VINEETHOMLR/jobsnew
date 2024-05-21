@@ -70,8 +70,6 @@ class LoginController extends Controller
         } 
 
 
-
-
         $token = $this->generateToken($userDetails['id']);
         $userSystemInfo = Helper::getUserSystemInfo();
 
@@ -93,8 +91,6 @@ class LoginController extends Controller
         $insert['last_seen']             =  time();      
 
         (new UserTokenList)->assignAttrs($insert)->save();
-
-
 
 
         $updateUser['last_login_time']        =  time();  
@@ -127,13 +123,27 @@ class LoginController extends Controller
 
         $redis->set($redisKey,$player_arr,7200);*/
 
+        $checkProfileCompleted = true;
+        if($role_id == '2') {
+
+            $checkProfileCompleted = (new User)->checkProfileCompleted($userDetails['id']);
+            $checkProfileCompleted = !empty($checkProfileCompleted) ? false : true;
+
+
+        }
+        
         $data = array(
                     "id"=> (string)$userDetails['id'],
                     "name"=> (string)$userDetails['name'],
                     "status"=> "1",
                     "last_login_time"=> (string)$userDetails['last_login_time'],
                     "last_login_ip"=> (string)$userDetails['last_login_ip'],
-                    "token"=> (string)$redisKey);
+                    "token"=> (string)$redisKey,
+                    "role"=>(string)$role_id,
+                    "profile_completion_status"=>$checkProfileCompleted
+
+
+                );
         
         return $this->renderAPI($data, Raise::t('login','suc_login'), 'false', 'S01', 'true', 200);
     
