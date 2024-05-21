@@ -773,6 +773,28 @@ class User extends Database
 
     }
 
+     public function checkProfileCompleted($id)
+    {
+
+        $sql = "SELECT category,address,id_photo,basic_charge FROM user_extra WHERE user_id='$id'";
+        $result = $this->callsql($sql,'row');
+
+
+        $haveEmpty = false;
+        foreach ($result as $key => $value) {
+            if (empty($value) ) {
+
+
+                $haveEmpty = true;
+            }
+        }
+
+        return $haveEmpty;
+
+
+
+    }
+
 
         
 
