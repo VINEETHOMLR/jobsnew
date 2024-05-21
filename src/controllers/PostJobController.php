@@ -61,6 +61,14 @@ class PostJobController extends Controller
         if(empty($description) || $description=="") {
             return $this->renderAPIError("Please Enter Description",''); 
         }
+
+        $category = $this->jobs->callsql("SELECT `id` FROM category WHERE id=$category_id ",'value');
+
+        if(empty($category))
+            $this->renderAPIError("Invalid Category");
+
+        if(empty($jobcheck))
+            $this->renderAPIError("Invalid Job");
         
         $imagearray  = [];
 
