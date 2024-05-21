@@ -96,14 +96,14 @@ class Category extends Database
     {
         $this->assignAttrs($data);
         return $this->save();
-    }    
+    }  
 
 
-    public function getList($lang){
- 
-        $title = 'title_'.$lang;
+    public function getCategory()
+    {
+
        
-        $response = $this->callSql("SELECT id,$title FROM $this->tableName WHERE  status=1 ORDER BY id DESC ","rows");
+        $response = $this->callSql("SELECT id,name,parent_category_id,status,image,icon  FROM $this->tableName  WHERE  status=1 ORDER BY id DESC ","rows");
 
         $category_list = array();
 
@@ -114,74 +114,57 @@ class Category extends Database
 
         if (!empty($response)) {
 
-                foreach ($response as $key => $info) {
+            foreach ($response as $key => $info) {
+                   
+                $response[$key]['icon'] = !empty($info['icon'])?BASEURL.'bo/web/upload/category/icon/'.$info['icon']:BASEURL.'bo/web/upload/category/icon/default.PNG';
 
-                    $cat_id = $info['id'];
-                    $category_list[$key]['category_id']   = $cat_id;
-                    $category_list[$key]['category_name'] = $info[$title];
+                $response[$key]['image'] = !empty($info['image'])?BASEURL.'bo/web/upload/category/image/'.$info['image']:BASEURL.'bo/web/upload/category/image/default.PNG';
 
-                    $result = $this->callSql("SELECT id,$title FROM  sub_category WHERE category_id='$cat_id' AND status=1 ORDER BY id DESC ","rows");
-                 
-                    if (!empty($result)) { 
-
-                           foreach ($result as $k => $val) {  
-                            // print_r($val);exit;
-
-                                $category_list[$key]['subcategory_list'][$k]['subcategory_id']  = $val['id'];
-                                $category_list[$key]['subcategory_list'][$k]['subcategory_name']  = $val[$title];     
-                          }
-
-                   } else {
-                               $category_list[$key]['subcategory_list'] = [];
-                   }
-
-        } 
-
-        return !empty($category_list) ? $category_list :$category_list;
-    }
-
-}
-
-
-    public function getSubcategoryList($category_id){
-
-        $response = $this->callSql("SELECT id,name,category_id FROM sub_category WHERE  category_id=$category_id AND status=1 ORDER BY id DESC ","rows");
-
-        $rows = array();
-
-        if (!empty($response)) {
-                foreach ($response as $key => $info) {
-                    
-
-                    $rows[$key]['subcategory_id']    = !empty($info['id'])?strval($info['id']):'0';
-                    $rows[$key]['name']  = !empty($info['name'])?$info['name']:'-';
-                    $rows[$key]['category_id']  = !empty($info['category_id'])?$info['category_id']:'0';
-                    
-                }
+                
+            }
         }
 
+        $result = $response; 
+
+        return $result;
+    }  
+
+
+    public function getFavCategory()
+    {
+
        
+        $response = $this->callSql("SELECT ca.id,ca.name,ca.parent_category_id,ca.status,ca.image,ca.icon,
 
-        
+        (SELECT COUNT(*)  FROM job_post jp  WHERE jp.category_id = ca.id ) AS job_post_count
 
-        return !empty($rows) ? $rows :$rows;    
-    }
+        FROM  category AS ca
 
-    public function getDetails($id){
-        
-        return $this->callSql("SELECT id,title,sub_title,image,status,price,duration FROM $this->tableName WHERE  status=1 AND id=$id","row");
-    }
+        WHERE ca.status = 1 ORDER BY   job_post_count DESC","rows");
 
-    public function getSubcategoryDetails($id){
-        
-        return $this->callSql("SELECT *  FROM sub_category WHERE  status=1 AND id=$id","row");
-    }
-    
-    
+        $category_list = array();
 
-    
+        if(empty($response)) {
+             
+             return []; 
+        }
 
-    
+        if (!empty($response)) {
+
+            foreach ($response as $key => $info) {
+                   
+                $response[$key]['icon'] = !empty($info['icon'])?BASEURL.'bo/web/upload/category/icon/'.$info['icon']:BASEURL.'web/upload/category/icon/default.png';
+
+                $response[$key]['image'] = !empty($info['image'])?BASEURL.'bo/web/upload/category/image/'.$info['image']:BASEURL.'web/upload/category/image/default.png';
+
+                
+            }
+        }
+
+        $result = $response; 
+
+        return $result;
+    } 
    
     
 }
