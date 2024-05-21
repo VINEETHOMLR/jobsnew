@@ -34,9 +34,7 @@ class PostJobController extends Controller
 
 
         $input   = $_POST;
-
-        //print_r($_FILES['images']);die();
-        
+        //print_r($input);die();
         $userObj = Raise::$userObj;
         $userId  = $userObj['id'];
 
@@ -47,8 +45,8 @@ class PostJobController extends Controller
         $description    = issetGet($input,'description','');
         $category_id    = issetGet($input,'category_id','');
         
-        $images         = $_FILES['images']['name'];
-        print_r($_FILES['images']);die();
+        $images         = issetGet($input,'images','');
+        
 
         if(empty($userId)) {
             return $this->renderAPIError(Raise::t('common','err_userid_required'),'');   
@@ -68,9 +66,9 @@ class PostJobController extends Controller
 
         if(!empty($images)) {
 
-            $counts = 1;
+            $counts = count($images);
 
-            for($i=1;$i<$count;$i++)
+            for($i=0;$i<$counts;$i++)
             {
 
                 if(!$this->checkimage($images[$i])){
@@ -78,7 +76,7 @@ class PostJobController extends Controller
                     return $this->renderAPIError("Allowed image formats are jpeg,jpg,png",'');    
                     die(); 
                 }
-                $output_file = 'pro'.'_'.rand().'_'.time().'_'.$userId;
+                $output_file = 'pro'.'_'.$i.rand().'_'.time().'_'.$userId;
                 $profile_pic = $this->base64_to_jpeg($images[$i], $output_file);
 
                 $imagearray[$i] = $profile_pic;
@@ -89,7 +87,7 @@ class PostJobController extends Controller
 
         }
 
-        
+       
 
         $params = [];
         $params['title']            = $title;
@@ -153,7 +151,7 @@ class PostJobController extends Controller
 
 function base64_to_jpeg($base64_string, $output_file) {
 
-    $upload_path='web/upload/profile/'; 
+    $upload_path='web/upload/images/'; 
     $allowed = ['jpeg','jpg','png'];
     
     $imageInfo = explode(";base64,", $base64_string);
