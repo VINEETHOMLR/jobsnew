@@ -156,6 +156,83 @@ class Chat extends Database
 
     }
 
+    public function getChatList($params)
+    {
+        
+        $where = " WHERE id!='0' ";
+        $where2 = " WHERE id!='0'";
+        $user_id = $params['user_id'];
+        $type = $params['type'];
+
+        if(!empty($params['search_keyword'])) {
+            $where2 .= " AND name LIKE '%$data[search_keyword]%' "; 
+        }
+        if($type == '1') { //employer
+            
+            $where2 .= " AND role_id='2'";
+            $sql = "SELECT id FROM user $where2";
+            $userIds = $this->callsql($sql,'rows');
+            $where .= " AND employer_id='$user_id'";
+            if(!empty($userIds)) {
+
+                $userIds = array_column($userIds,'id');
+                $userIds = implode(',',$userIds);
+                $where .= " AND jobseeker_id IN($userIds)";
+
+            }
+
+
+            
+
+        }
+        if($type == '2') { //jobseeker
+            
+            $where2 .= " AND role_id='1'";
+            $sql = "SELECT id FROM user $where2";
+            $userIds = $this->callsql($sql,'rows');
+            $where .= " AND jobseeker_id='$user_id'";
+            if(!empty($userIds)) {
+
+                $userIds = array_column($userIds,'id');
+                $userIds = implode(',',$userIds);
+                $where .= " AND employer_id IN($userIds)";
+
+            }
+            
+
+        }
+        $sql = "SELECT * FROM chat $where ORDER BY id DESC ";
+
+        $list = $this->callsql($sql,'rows');
+        $result = [];
+        foreach($list as $key=>$value)
+        {
+            if($type == '1') {
+
+                $name = $this->callsql("SELECT name FROM user WHERE id='$value[jobseeker_id]'",'value');
+
+            }
+            if($type == '2') {
+
+                $name = $this->callsql("SELECT name FROM user WHERE id='$value[employer_id]'",'value');
+
+            }
+
+            $chatid = $value['id'];
+            $lastMessage = $this->callsql("SELECT message FROM chat_messages WHERE id='$chatid' ORDER BY id DESC LIMIT 1");
+            $lastMessage = !empty($lastMessage) ? $lastMessage : ''; 
+            $result[$key]['chat_id'] = $value['id'];
+            $result[$key]['name']    = $name;
+            $result[$key]['message']    = $lastMessage;
+
+        }
+
+       return $result;
+        
+
+
+    }
+
 
     
 

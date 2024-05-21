@@ -48,14 +48,32 @@ class ChatController extends Controller
         $params = [];
         $params['chat_id'] = $chat_id;
         $chatList = $this->chats->getMessages($params);
-        $data         = ['chatList'=>$chatList];
+        $data         = ['messageList'=>$chatList];
         return $this->renderAPI($data, 'Success', 'false', 'S01', 'true', 200);
 
     }
 
-    public function getChatList()
+    public function actiongetChatList()
     {
-        
+
+        $input          = $_POST;
+        $userObj        = Raise::$userObj;
+        $type           = issetGet($input,'type',''); //1-employer,2-jobseeker
+        $search_keyword = issetGet($input,'search_keyword','');
+
+        $params = [];
+        $params['type']           = $type;
+        $params['search_keyword'] = $search_keyword;
+        $params['user_id'] = $userObj['id'];
+        $chatList = $this->chats->getChatList($params);
+        $data         = ['chatList'=>$chatList];
+        return $this->renderAPI($data, 'Success', 'false', 'S01', 'true', 200);
+
+
+
+
+
+
     }
 
     
