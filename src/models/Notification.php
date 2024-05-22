@@ -114,5 +114,69 @@ class Notification extends Database
             
     }  
 
+    public function getNotifications($filter){
+
+        $sql = $where_str = $select = '';
+        $where_str_array = array();
+
+        $user_id = !empty($filter['user_id']) ? $filter['user_id'] : '0';
+
+        array_push($where_str_array,"  user_id =  ".$user_id." "); 
+
+        $where_str = '1';
+        if (!empty($where_str_array)) {
+            $where_str = implode(' AND ', $where_str_array);
+        }
+
+        $select = ' id,user_id,data,type';
+       
+        $limit = ' ';
+
+        $orderby = ' ORDER BY id DESC ';
+        
+
+        $getTotal = $this->callsql('SELECT count(id) FROM notification  WHERE '.$where_str.' ','value');
+
+        $sql = 'SELECT  '.$select.'  
+        FROM 
+            notification 
+        WHERE 
+            '.$where_str.'  '.$orderby.' '.$limit.' ';
+
+       
+        $rows = $this->callsql($sql,"rows");
+        $resp = [];
+        if(!empty($rows)) {
+
+            foreach($rows as $index=>$value){
+                
+                $datas  = json_decode($value['data'],true);
+               
+                $resp[] = array(
+                                'id'         => $value['id'],
+                                'message'    => $datas['data'],
+                                'data_id'    => $datas['id'],
+                                'type'       => $value['type']
+                               ); 
+            }
+            //$totalPages = floor($getTotal/$perPage); 
+            //if(($getTotal%$perPage)!=0){$totalPages = $totalPages+1;} 
+
+        }
+
+
+        $recordsFiltered = count($resp);
+
+       
+        $datarray['game_list']['recordsTotal']      = !empty($recordsFiltered)?strval($recordsFiltered):'0';
+        //$datarray['game_list']['recordsFiltered']   = !empty($resp)?strval($recordsFiltered):'0';
+        //$datarray['game_list']['totalPages']        = !empty($totalPages)?strval($totalPages):'0';
+        //$datarray['game_list']['currentPage']       = !empty($getTotal)?strval($page):'0';
+        $datarray['game_list']['recordsList']       = !empty($resp) ? $resp :[];
+
+        return $datarray;
+
+    }
+
     
 }

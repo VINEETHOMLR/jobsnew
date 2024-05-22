@@ -10,6 +10,7 @@ use src\lib\Secure;
 use src\lib\RRedis;
 use src\lib\ValidatorFactory;
 use src\models\Category;
+use src\models\Notification;
 
 class HomeController extends Controller
 {
@@ -58,4 +59,30 @@ class HomeController extends Controller
 
 
     }
+
+    public function actionNotificationList()
+    {
+        
+
+        $userObj        = Raise::$userObj;
+        $user_id        = $userObj['id'];
+        //$input          = $_POST;
+
+        if(empty($user_id)) 
+        {
+            $this->renderAPIError("Invalid User");
+        }
+
+        $params = ['user_id'=>$user_id];
+
+        $List  = (new Notification)->getNotifications($params);
+       
+        $status = 'true';
+        $show_alert = 'false';
+        $code = 'S12';
+        return $this->renderAPI($List, "Notification List", $show_alert, $code, $status, 200);
+
+
+    }
+    
 }
