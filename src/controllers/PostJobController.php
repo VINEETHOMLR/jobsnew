@@ -161,6 +161,101 @@ class PostJobController extends Controller
 
 }
 
+public function actionJobAssign(){
+
+
+        $input   = $_POST;
+        //print_r($input);die();
+        $userObj = Raise::$userObj;
+        $userId  = $userObj['id'];
+
+        $post_id        = issetGet($input,'post_id','0');
+        $latitude       = issetGet($input,'latitude','0');
+        $longitude      = issetGet($input,'longitude','0');
+        $location       = issetGet($input,'location','');
+        $description    = issetGet($input,'description','');
+        $category_id    = issetGet($input,'category_id','');
+        
+        $images         = issetGet($input,'images','');
+        
+
+        if(empty($userId)) {
+            return $this->renderAPIError(Raise::t('common','err_userid_required'),'');   
+        }
+        
+        if(empty($location) || $location=="") {
+            return $this->renderAPIError("Please select location",''); 
+        }
+
+        if(empty($description) || $description=="") {
+            return $this->renderAPIError("Please Enter Description",''); 
+        }
+
+        $category = $this->jobs->callsql("SELECT `id` FROM category WHERE id=$category_id ",'value');
+
+
+
+        if(empty($category))
+            $this->renderAPIError("Invalid Category");
+
+        $parent_category_id = $this->jobs->callsql("SELECT `parent_category_id` FROM category WHERE id=$category_id ",'value');
+
+        $type = $this->jobs->callsql("SELECT `type` FROM parent_category WHERE id=$parent_category_id ",'value');
+
+        if( ($latitude=="" || $longitude == "" ) && $type==1) {
+            return $this->renderAPIError("Ivalid location",''); 
+        }
+        
+        $imagearray  = [];
+
+        if(!empty($images)) {
+
+            $counts = count($images);
+
+            for($i=0;$i<$counts;$i++)
+            {
+
+                if(!$this->checkimage($images[$i])){
+
+                    return $this->renderAPIError("Allowed image formats are jpeg,jpg,png",'');    
+                    die(); 
+                }
+                $output_file = 'pro'.'_'.$i.rand().'_'.time().'_'.$userId;
+                $profile_pic = $this->base64_to_jpeg($images[$i], $output_file);
+
+                $imagearray[$i] = $profile_pic;
+
+            }
+            
+            
+
+        }
+
+       
+
+        $params = [];
+        $params['title']            = $title;
+        $params['latitude']         = $latitude;
+        $params['longitude']        = $longitude;
+        $params['location']         = $location;
+        $params['description']      = $description;
+        $params['category_id']      = $category_id;
+
+        $params['images']           = json_encode($imagearray);
+        $params['user_id']          = $userId;
+
+        if($this->jobs->insertRecord($params))
+        {
+            return $this->renderAPI([], Raise::t('common','success_report'), 'false', 'S01', 'true', 200); 
+        }else{
+
+            return $this->renderAPIError(Raise::t('common','upload_err'),'');    
+        }
+        
+        return $this->renderAPIError(Raise::t('common','something_wrong_text'),''); 
+
+    }
+
 
 function base64_to_jpeg($base64_string, $output_file) {
 

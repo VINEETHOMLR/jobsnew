@@ -211,15 +211,17 @@ class Applications extends Database {
                 if($type == 1 && $value['distance']>5)
                     continue;
                
-                $resp[] = array('name'    => $name,
-                                'rating'  => $value['rating'],
-                                'price'   => $value['basic_price'],
-                                'distance'=> $value['distance'],
-                                'status'  => $value['status'],
-                                'type'    => $type
+                $resp[] = array('name'          => $name,
+                                'applicant_id'  => $value['user_id'],
+                                'post_id'       => $value['post_id'],
+                                'rating'        => $value['rating'],
+                                'price'         => $value['basic_price'],
+                                'distance'      => $value['distance'],
+                                'location'      => $value['location'],
+                                'reach_time'    => $value['reach_time'],
+                                'status'        => $value['status'],
+                                'type'          => $type
                                ); 
-
-
 
             }
             //$totalPages = floor($getTotal/$perPage); 
@@ -250,10 +252,10 @@ class Applications extends Database {
         $user_id = !empty($filter['user_id']) ? $filter['user_id'] : '0';
 
         
-        if(!empty($filter['page'])){
-            $page = !empty($filter['page'])?$filter['page']:'1';
-            $perPage = !empty($filter['perPage'])?$filter['perPage']:'10';
-        }
+        //if(!empty($filter['page'])){
+        //    $page = !empty($filter['page'])?$filter['page']:'1';
+        //    $perPage = !empty($filter['perPage'])?$filter['perPage']:'10';
+        //}
 
         array_push($where_str_array,"  user_id =  ".$user_id." "); 
 
@@ -264,11 +266,12 @@ class Applications extends Database {
             $where_str = implode(' AND ', $where_str_array);
         }
 
-        $select = ' id,post_id,job_seeker_id ';
+        $select = ' id,user_id,post_id,job_seeker_id ';
        
-        $pageStart = ($page - 1) * $perPage;
+        //$pageStart = ($page - 1) * $perPage;
 
-        $limit = ' LIMIT '.$pageStart.','.$perPage;
+        //$limit = ' LIMIT '.$pageStart.','.$perPage;
+        $limit = ' ';
 
         
         $orderby = ' ORDER BY id DESC ';
@@ -293,12 +296,13 @@ class Applications extends Database {
                 
                 $name = $this->callsql("SELECT name FROM  user  WHERE id=$value[job_seeker_id] ",'value');
                
-                $resp[] = array('name'    => $name
+                $resp[] = array('name'              => $name,
+                                'user_id'           => $value['user_id'],
+                                'applicant_id'      => $value['job_seeker_id']
                                ); 
-
             }
-            $totalPages = floor($getTotal/$perPage); 
-            if(($getTotal%$perPage)!=0){$totalPages = $totalPages+1;} 
+            //$totalPages = floor($getTotal/$perPage); 
+            //if(($getTotal%$perPage)!=0){$totalPages = $totalPages+1;} 
 
         }
 
@@ -306,7 +310,7 @@ class Applications extends Database {
         $recordsFiltered = count($resp);
 
        
-        $datarray['game_list']['recordsTotal']      = !empty($getTotal)?strval($getTotal):'0';
+        $datarray['game_list']['recordsTotal']      = !empty($recordsFiltered)?strval($recordsFiltered):'0';
         //$datarray['game_list']['recordsFiltered']   = !empty($resp)?strval($recordsFiltered):'0';
         //$datarray['game_list']['totalPages']        = !empty($totalPages)?strval($totalPages):'0';
         //$datarray['game_list']['currentPage']       = !empty($getTotal)?strval($page):'0';
