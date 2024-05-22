@@ -10,6 +10,7 @@ use src\traits\DataTableTrait;
 use src\traits\FilterTrait;
 use src\traits\ModelTrait;
 use src\lib\Helper as H;
+use src\models\Notification;
 
 
 class Jobs extends Database
@@ -138,7 +139,20 @@ class Jobs extends Database
             $this->bind(':created_at',  time());
            
             if($this->execute()){
-                return true;
+
+                $lid = $this->lastInsertId();
+
+
+                $rows = $this->callsql("SELECT user_id FROM `user_extra` WHERE  FIND_IN_SET($params[category_id],category )  ",'rows');
+                $data = json_encode(['data'=>"New Job Posted ".$params['title'],'id'=>$lid]);
+
+                foreach($rows as $value)
+                {
+                     (new Notification)->insertNotification($value['user_id'],$data,1);
+                } 
+
+            return true;
+            
             }
             return false;
             
@@ -159,15 +173,6 @@ class Jobs extends Database
             return false;
             
     } 
-
-
-
-    
-    
-
-    
-
-    
    
     
 }
