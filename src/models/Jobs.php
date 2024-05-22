@@ -144,6 +144,22 @@ class Jobs extends Database
             
     }  
 
+    function updateRecord($params){
+
+        $query = " UPDATE  $this->tableName SET  `status`=:status,`jobseeker_id`=:jobseeker_id,`updated_at`=:updated_at  WHERE id=:post_id ";
+            $this->query($query);
+            $this->bind(':status',        2);
+            $this->bind(':jobseeker_id',  $params['applicant_id']);
+            $this->bind(':updated_at',    time());
+            $this->bind(':post_id',       $params['post_id']);
+           
+            if($this->execute()){
+                return true;
+            }
+            return false;
+            
+    } 
+
 
 
     
