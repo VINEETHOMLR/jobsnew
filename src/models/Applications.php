@@ -117,14 +117,16 @@ class Applications extends Database {
 
         $sql = $where_str = $select = '';
         $where_str_array = array();
-        $status = !empty($filter['status']) ? $filter['status'] : '';
-        $post_id = !empty($filter['post_id']) ? $filter['post_id'] : '0';
+        $status         = !empty($filter['status']) ? $filter['status'] : '';
+        $post_id        = !empty($filter['post_id']) ? $filter['post_id'] : '0';
+
+        $category_id    = !empty($filter['category_id']) ? $filter['category_id'] : '0';
 
         
-        if(!empty($filter['page'])){
-            $page = !empty($filter['page'])?$filter['page']:'1';
-            $perPage = !empty($filter['perPage'])?$filter['perPage']:'10';
-        }
+        //if(!empty($filter['page'])){
+        //   $page = !empty($filter['page'])?$filter['page']:'1';
+        //    $perPage = !empty($filter['perPage'])?$filter['perPage']:'10';
+        //}
 
         array_push($where_str_array,"  ap.post_id =  ".$post_id." "); 
 
@@ -142,9 +144,11 @@ class Applications extends Database {
         $select = ' ap.post_id,ap.user_id,ap.status,ap.basic_price,ap.location,ap.reach_time,ap.created_at ';
         
        
-        $pageStart = ($page - 1) * $perPage;
+        //$pageStart = ($page - 1) * $perPage;
 
-        $limit = ' LIMIT '.$pageStart.','.$perPage;
+        //$limit = ' LIMIT '.$pageStart.','.$perPage;
+
+        $limit = '';
 
         $orderarray = [];
 
@@ -186,29 +190,40 @@ class Applications extends Database {
         JOIN 
             user_extra AS ue ON ue.user_id = ap.user_id 
         WHERE 
-            '.$where_str.' HAVING distance < 5  '.$orderby.' '.$limit.' ';
+            '.$where_str.' '.$orderby.' '.$limit.' ';
 
        
         $rows = $this->callsql($sql,"rows");
         $resp = [];
+
+        $parent_category_id = $this->callsql("SELECT parent_category_id FROM  category  WHERE id='".$category_id."' ",'value');
+
+        $type = 2;
+        if(isset($parent_category_id) && !empty($parent_category_id))
+            $type = $this->callsql("SELECT type FROM  parent_category  WHERE id='".$parent_category_id."'  ",'value');
+
         if(!empty($rows)) {
 
             foreach($rows as $index=>$value){
                 
                 $name = $this->callsql("SELECT name FROM  user  WHERE id=$value[user_id] ",'value');
+
+                if($type == 1 && $value['distance']>5)
+                    continue;
                
                 $resp[] = array('name'    => $name,
                                 'rating'  => $value['rating'],
                                 'price'   => $value['basic_price'],
-                                'distance'=>$value['distance'],
-                                'status'  =>$value['status']
+                                'distance'=> $value['distance'],
+                                'status'  => $value['status'],
+                                'type'    => $type
                                ); 
 
 
 
             }
-            $totalPages = floor($getTotal/$perPage); 
-            if(($getTotal%$perPage)!=0){$totalPages = $totalPages+1;} 
+            //$totalPages = floor($getTotal/$perPage); 
+            //if(($getTotal%$perPage)!=0){$totalPages = $totalPages+1;} 
 
         }
 
@@ -216,10 +231,10 @@ class Applications extends Database {
         $recordsFiltered = count($resp);
 
        
-        $datarray['game_list']['recordsTotal']      = !empty($getTotal)?strval($getTotal):'0';
-        $datarray['game_list']['recordsFiltered']   = !empty($resp)?strval($recordsFiltered):'0';
-        $datarray['game_list']['totalPages']        = !empty($totalPages)?strval($totalPages):'0';
-        $datarray['game_list']['currentPage']       = !empty($getTotal)?strval($page):'0';
+        $datarray['game_list']['recordsTotal']      = !empty($recordsFiltered)?strval($recordsFiltered):'0';
+        //$datarray['game_list']['recordsFiltered']   = !empty($resp)?strval($recordsFiltered):'0';
+        //$datarray['game_list']['totalPages']        = !empty($totalPages)?strval($totalPages):'0';
+        //$datarray['game_list']['currentPage']       = !empty($getTotal)?strval($page):'0';
         $datarray['game_list']['recordsList']       = !empty($resp) ? $resp :[];
 
         return $datarray;
@@ -292,9 +307,9 @@ class Applications extends Database {
 
        
         $datarray['game_list']['recordsTotal']      = !empty($getTotal)?strval($getTotal):'0';
-        $datarray['game_list']['recordsFiltered']   = !empty($resp)?strval($recordsFiltered):'0';
-        $datarray['game_list']['totalPages']        = !empty($totalPages)?strval($totalPages):'0';
-        $datarray['game_list']['currentPage']       = !empty($getTotal)?strval($page):'0';
+        //$datarray['game_list']['recordsFiltered']   = !empty($resp)?strval($recordsFiltered):'0';
+        //$datarray['game_list']['totalPages']        = !empty($totalPages)?strval($totalPages):'0';
+        //$datarray['game_list']['currentPage']       = !empty($getTotal)?strval($page):'0';
         $datarray['game_list']['recordsList']       = !empty($resp) ? $resp :[];
 
         return $datarray;

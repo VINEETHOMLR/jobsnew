@@ -36,8 +36,8 @@ class ApplicantListController extends Controller
 
 
         $post_id        = issetGet($input,'post_id',"0");
-        $page           = issetGet($input,'page',"1");
-        $perPage        = issetGet($input,'perPage','10');
+        //$page           = issetGet($input,'page',"1");
+        //$perPage        = issetGet($input,'perPage','10');
         $sort           = issetGet($input,'sort','');
 
         $sorts  = [];
@@ -72,12 +72,12 @@ class ApplicantListController extends Controller
             $this->renderAPIError("Invalid Job");
         }
 
-        $jobcheck = $this->mdl->callsql("SELECT `id`,`latitude`,`longitude` FROM job_post WHERE id=$post_id AND status IN (1,2) ",'row');
+        $jobcheck = $this->mdl->callsql("SELECT `id`,`latitude`,`longitude`,`category_id` FROM job_post WHERE id=$post_id AND status IN (1,2) ",'row');
 
         if(empty($jobcheck))
             $this->renderAPIError("Invalid Job");
 
-        $params = ['page' => $page ,  'perPage' => $perPage ,'status' => '1','post_id' => $jobcheck['id'] ,'latitude' => $jobcheck['latitude'],'longitude' => $jobcheck['longitude']];
+        $params = ['status' => '1','post_id' => $jobcheck['id'] ,'latitude' => $jobcheck['latitude'],'longitude' => $jobcheck['longitude'],'category_id' => $jobcheck['category_id']];
 
 
 
@@ -101,8 +101,8 @@ class ApplicantListController extends Controller
         $user_id        = $userObj['id'];
         $input          = $_POST;
 
-        $page           = issetGet($input,'page',"1");
-        $perPage        = issetGet($input,'perPage','10');
+        //$page           = issetGet($input,'page',"1");
+        //$perPage        = issetGet($input,'perPage','10');
         
         if(empty($user_id)) 
         {
@@ -110,7 +110,7 @@ class ApplicantListController extends Controller
         }
 
 
-        $params = ['page' => $page ,  'perPage' => $perPage,  'user_id' => $user_id];
+        $params = ['user_id' => $user_id];
 
 
         $List  = (new Applications)->getSavedRecords($params);

@@ -39,8 +39,8 @@ class PostJobController extends Controller
         $userId  = $userObj['id'];
 
         $title          = issetGet($input,'title','');
-        $latitude       = issetGet($input,'latitude','');
-        $longitude      = issetGet($input,'longitude','');
+        $latitude       = issetGet($input,'latitude','0');
+        $longitude      = issetGet($input,'longitude','0');
         $location       = issetGet($input,'location','');
         $description    = issetGet($input,'description','');
         $category_id    = issetGet($input,'category_id','');
@@ -51,9 +51,7 @@ class PostJobController extends Controller
         if(empty($userId)) {
             return $this->renderAPIError(Raise::t('common','err_userid_required'),'');   
         }
-        if( $latitude=="" || $longitude == "") {
-            return $this->renderAPIError("Ivalid location",''); 
-        }
+        
         if(empty($location) || $location=="") {
             return $this->renderAPIError("Please select location",''); 
         }
@@ -64,11 +62,18 @@ class PostJobController extends Controller
 
         $category = $this->jobs->callsql("SELECT `id` FROM category WHERE id=$category_id ",'value');
 
+
+
         if(empty($category))
             $this->renderAPIError("Invalid Category");
 
-        if(empty($jobcheck))
-            $this->renderAPIError("Invalid Job");
+        $parent_category_id = $this->jobs->callsql("SELECT `parent_category_id` FROM category WHERE id=$category_id ",'value');
+
+        $type = $this->jobs->callsql("SELECT `type` FROM parent_category WHERE id=$parent_category_id ",'value');
+
+        if( ($latitude=="" || $longitude == "" ) && $type==1) {
+            return $this->renderAPIError("Ivalid location",''); 
+        }
         
         $imagearray  = [];
 
