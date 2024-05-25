@@ -173,6 +173,117 @@ class Jobs extends Database
             return false;
             
     } 
+
+    public function getOpenOrders($params)
+    {
+        $where = " WHERE id!='0' AND status IN(1) ";
+        if(!empty($params['user_id'])) {
+
+            $where .= " AND user_id='$params[user_id]'";
+
+        }
+
+        $sql = "SELECT * FROM $this->tableName $where ORDER BY id DESC";
+
+        
+        $rows = $this->callsql($sql,"rows");
+        $resp = [];
+        if(!empty($rows)) {
+
+            foreach($rows as $index=>$value){
+                
+                $images = json_decode($value['images'],true);
+                foreach ($images as $key => $image) {
+                    $images[$key] =  BASEURL.'web/upload/images/'.$image;
+                }
+                $category = $this->callsql("SELECT name FROM category WHERE id='$value[category_id]'",'value');
+                $resp[] = array(
+                                'id'                  => $value['id'],
+                                'title'               => $value['title'],
+                                'service_category'    => $category,
+                                'images'              => $images,
+                                'status'              => $value['status']
+                               ); 
+            }
+            //$totalPages = floor($getTotal/$perPage); 
+            //if(($getTotal%$perPage)!=0){$totalPages = $totalPages+1;} 
+
+        }
+
+       
+
+        $recordsFiltered = count($resp);
+
+       
+        $datarray['orderList']['recordsTotal']      = !empty($recordsFiltered)?strval($recordsFiltered):'0';
+        //$datarray['game_list']['recordsFiltered']   = !empty($resp)?strval($recordsFiltered):'0';
+        //$datarray['game_list']['totalPages']        = !empty($totalPages)?strval($totalPages):'0';
+        //$datarray['game_list']['currentPage']       = !empty($getTotal)?strval($page):'0';
+        $datarray['orderList']['recordsList']       = !empty($resp) ? $resp :[];
+
+        return $datarray;
+
+    }
+
+    public function getPastOrders($params)
+    {
+        $where = " WHERE id!='0' AND status IN(2,3,4) ";
+        if(!empty($params['user_id'])) {
+
+            $where .= " AND user_id='$params[user_id]'";
+
+        }
+
+        $sql = "SELECT * FROM $this->tableName $where ORDER BY id DESC";
+
+        
+        $rows = $this->callsql($sql,"rows");
+        $resp = [];
+
+        $statusArray = ['1'=>'Posted','2'=>'Confirmation Pending','3'=>'Jobseeker Accepted','4'=>'Completed'];
+        if(!empty($rows)) {
+
+            foreach($rows as $index=>$value){
+                
+                $images = json_decode($value['images'],true);
+                foreach ($images as $key => $image) {
+                    $images[$key] =  BASEURL.'web/upload/images/'.$image;
+                }
+                $category     = $this->callsql("SELECT name FROM category WHERE id='$value[category_id]'",'value');
+                $hired_person = $this->callsql("SELECT name FROM user WHERE id='$value[jobseeker_id]'",'value');
+                $amount_paid = $value['payment_status'] == '1' ? $value['total_amount'] : '-';
+                $resp[] = array(
+                                'id'                  => $value['id'],
+                                'title'               => $value['title'],
+                                'service_category'    => $category,
+                                'images'              => $images,
+                                'status'              => $value['status'],
+                                'status_text'         => $statusArray[$value['status']], 
+                                'hired_person'        => $hired_person,
+                                'amount_paid'         => $amount_paid
+                               ); 
+            }
+            //$totalPages = floor($getTotal/$perPage); 
+            //if(($getTotal%$perPage)!=0){$totalPages = $totalPages+1;} 
+
+        }
+
+       
+
+        $recordsFiltered = count($resp);
+
+       
+        $datarray['pastOrderList']['recordsTotal']      = !empty($recordsFiltered)?strval($recordsFiltered):'0';
+        //$datarray['game_list']['recordsFiltered']   = !empty($resp)?strval($recordsFiltered):'0';
+        //$datarray['game_list']['totalPages']        = !empty($totalPages)?strval($totalPages):'0';
+        //$datarray['game_list']['currentPage']       = !empty($getTotal)?strval($page):'0';
+        $datarray['pastOrderList']['recordsList']       = !empty($resp) ? $resp :[];
+
+        return $datarray;
+
+    }
+
+    
    
     
 }
