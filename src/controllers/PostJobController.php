@@ -359,6 +359,94 @@ public function actionApplyJob()
 
 }
 
+public function actionAcceptRejectInvitation()
+{
+
+    $input   = $_POST;
+        //print_r($input);die();
+    $userObj = Raise::$userObj;
+    $userId  = $userObj['id'];
+
+    $post_id         = issetGet($input,'post_id','0');
+    $action         = issetGet($input,'action','');
+    if($userObj['role_id']!='2') {
+        return $this->renderAPIError("Please login as employee",''); 
+
+    }
+    if(empty($post_id)) {
+
+        return $this->renderAPIError("Invalid job",''); 
+    }
+
+    $details = $this->jobs->findByPK($post_id);
+    if(empty($details)) {
+
+        return $this->renderAPIError("Invalid job",'');
+
+    }
+    if(empty($action)) { //1-accept,2-reject
+
+        return $this->renderAPIError("Invalid action",'');
+
+    }
+
+    $details = $this->jobs->findByPK($post_id);
+    if($action == '1') { //accept
+
+        if($details->jobseeker_id!=$userId && $details->status=='3') {
+
+
+            return $this->renderAPIError("Already accepted by another employee",'');
+            
+        }
+
+        if($details->jobseeker_id==$userId && $details->status=='3') {
+
+
+            return $this->renderAPIError("Already accepted ",'');
+            
+        }
+
+
+
+    }
+
+
+    $params = [];
+    $params['post_id'] = $post_id;
+    $params['jobseeker_id'] = $userId;
+    $params['action'] = $action;
+    $params['status']       = $action == '1' ? '3' : '1';
+
+    if($this->jobs->applyJob($params)){
+
+        $message = $action == '1' ? 'Successfully accepted':'Successfully Rejeted';
+
+    return $this->renderAPI([], $message, 'false', 'S14', 'true', 200); 
+    }else{
+
+        $message = $action == '1' ? 'Failed to  accept':'Failed to  Rejet';
+
+        return $this->renderAPIError($message,'');    
+    }
+    return $this->renderAPIError(Raise::t('common','something_wrong_text'),''); 
+ 
+
+
+
+    
+
+    
+
+
+
+
+
+
+
+
+}
+
 function isValidNumber($input) {
     // This regular expression matches integers and decimal numbers
         $pattern = '/^\d+(\.\d+)?$/';
