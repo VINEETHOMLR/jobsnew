@@ -828,6 +828,21 @@ class User extends Database
     }
 
 
+    public function getDashBoardData($id)
+    {
+
+        $awardedJobs = $this->callsql("SELECT count(id) FROM job_post WHERE jobseeker_id='$id' AND payment_status!='1'",'value');
+        $completedJobs  = $this->callsql("SELECT count(id) FROM job_post WHERE jobseeker_id='$id' AND payment_status='1'",'value');
+        $rating  = $this->callsql("SELECT rating FROM user_extra WHERE user_id='$id' ",'value');
+        $amountEarned  = $this->callsql("SELECT SUM(total_amount) as amountEarned FROM job_post WHERE jobseeker_id='$id' AND payment_status='1' ",'value');
+        $amountEarned = !empty($amountEarned) ? number_format($amountEarned,'2'):0;
+        $basic_charge = $this->callsql("SELECT basic_charge FROM user_extra WHERE user_id='$id' ",'value');
+
+        return ['awardedJobs'=>$awardedJobs,'completedJobs'=>$completedJobs,'rating'=>$rating,'amountEarned'=>$amountEarned,'basic_charge'=>$basic_charge];
+
+    }
+
+
         
 
 }
