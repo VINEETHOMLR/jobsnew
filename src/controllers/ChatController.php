@@ -53,6 +53,49 @@ class ChatController extends Controller
 
     }
 
+    public function actionSendMessage()
+    {
+
+        $input        = $_POST;
+        $userObj      = Raise::$userObj;
+        $chat_id      = $input['chat_id'];
+        $from_id      = $input['from_id'];
+        $to_id        = $input['to_id'];
+        $message      = $input['message'];
+
+        if(empty($chat_id)) {
+            return $this->renderAPIError('Please pass chat id to proceed','');   
+        }
+
+        if(empty($from_id)) {
+            return $this->renderAPIError('Please pass from id  to proceed','');   
+        }
+        if(empty($to_id)) {
+            return $this->renderAPIError('Please pass to id  to proceed','');   
+        }
+
+        if(empty($message)) {
+            return $this->renderAPIError('Please enter message  to proceed','');   
+        }
+
+        $params = [];
+        $params['chat_id'] = $chat_id;
+        $params['to_id']   = $to_id;
+        $params['from_id'] = $from_id;
+        $params['message'] = $message;
+
+        if($this->chats->sendMessage($params)){
+
+            return $this->renderAPI([], 'Success', 'false', 'S01', 'true', 200);    
+        }
+        return $this->renderAPIError('Something went wrong','');   
+
+
+        
+
+
+    }
+
     public function actiongetChatList()
     {
 

@@ -165,6 +165,15 @@ class Category extends Database
 
         return $result;
     } 
+
+    public function parentCategoryDetails($id)
+    {
+
+
+        $sql = "SELECT * FROM parent_category WHERE id='$id'";
+        return $this->callsql($sql,'row');
+
+    }
    
     
 }

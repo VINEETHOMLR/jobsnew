@@ -776,7 +776,7 @@ class User extends Database
      public function checkProfileCompleted($id)
     {
 
-        $sql = "SELECT category,address,id_photo,basic_charge FROM user_extra WHERE user_id='$id'";
+        $sql = "SELECT category,address,id_photo,basic_charge,radius FROM user_extra WHERE user_id='$id'";
         $result = $this->callsql($sql,'row');
 
 
@@ -790,6 +790,38 @@ class User extends Database
         }
 
         return $haveEmpty;
+
+
+
+    }
+
+
+    public function competeProfile($params)
+    {
+
+        $category   = $params['category'];
+        $experience = $params['experience'];
+        $radius     = $params['radius'];
+        $phone      = $params['phone'];
+        $address    = $params['address'];
+        $id_photo    = $params['idproof'];
+        $user_id    = $params['user_id'];
+
+        $updated_at = time();
+
+
+        $sql = "UPDATE user SET mobileno='$phone',updated_at='$updated_at' WHERE id='$user_id'";
+        $this->query($sql);
+        $result = $this->execute();
+
+        $sql = "UPDATE user_extra SET category='$category',address='$address',id_photo='$id_photo',radius='$radius',updated_at='$updated_at' WHERE user_id='$user_id'";
+
+        $this->query($sql);
+        $result = $this->execute();
+
+        return $result;
+
+
 
 
 

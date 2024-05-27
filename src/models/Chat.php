@@ -233,6 +233,21 @@ class Chat extends Database
 
     }
 
+    public function sendMessage($params)
+    {
+
+        $chat_id   = !empty($params['chat_id']) ? $params['chat_id'] : '';
+        $from_id   = !empty($params['from_id']) ? $params['from_id'] : '';
+        $to_id     = !empty($params['to_id']) ? $params['to_id'] : '';
+        $message   = !empty($params['message']) ? $params['message'] : '';
+        $created_at = time();
+
+        $sql = "INSERT INTO chat_messages SET chat_id='$chat_id',from_id='$from_id',to_id='$to_id',message='$message',created_at='$created_at'";
+        $this->query($sql);
+        return $this->execute();
+
+    }
+
 
     
 
