@@ -11,6 +11,8 @@ use src\lib\RRedis;
 use src\lib\ValidatorFactory;
 use src\models\User;
 use src\models\Jobs;
+use src\models\Applications;
+use src\models\Category;
 
 
 
@@ -26,6 +28,8 @@ class PostJobController extends Controller
         parent::__construct();
         $this->usermdl = (new User);
         $this->jobs = (new Jobs);
+        $this->applications = (new Applications);
+        $this->categorymdl = (new Category);
     }
 
     
@@ -252,13 +256,117 @@ public function actionGetJobDetails()
     $data['service_area'] = $details->location;
 
     return $this->renderAPI($data, "Success", 'false', 'S14', 'true', 200); 
-
-
-
-
-    
+ 
 
 }
+
+public function actionApplyJob()
+{
+
+    $input   = $_POST;
+        //print_r($input);die();
+    $userObj = Raise::$userObj;
+    $userId  = $userObj['id'];
+
+    $post_id         = issetGet($input,'post_id','0');
+    $basic_price     = issetGet($input,'basic_price','0');
+    $location        = issetGet($input,'location','');
+    $time            = issetGet($input,'time','');
+
+    if($userObj['role_id']!='2') {
+        return $this->renderAPIError("Please login as employee",''); 
+
+    }
+    if(empty($post_id)) {
+
+        return $this->renderAPIError("Invalid job",''); 
+    }
+
+    $details = $this->jobs->findByPK($post_id);
+    if(empty($details)) {
+
+        return $this->renderAPIError("Invalid job",'');
+
+    }
+
+    $params = [];
+    $params['post_id'] = $post_id;
+    $params['user_id'] = $userId;
+
+
+    if($this->applications->checkApplied($params)){
+
+        return $this->renderAPIError("Already applied",'');
+
+    }
+
+    if(empty($basic_price)) {
+
+        return $this->renderAPIError("Please enter basic price to proceed",''); 
+    }
+
+    if(!empty($basic_price) && !$this->isValidNumber($basic_price)) {
+
+        return $this->renderAPIError("Please enter valid basic price to proceed",''); 
+    }
+
+    $category = $details->category_id;
+    $parentCatgeory = $this->categorymdl->findByPK($category);
+    $parent_category_details = $this->categorymdl->parentCategoryDetails($parentCatgeory->parent_category_id);
+    if($parent_category_details['type'] == '1') { //local
+
+        
+
+        if(empty($location)) {
+
+            return $this->renderAPIError("Please enter area to proceed",''); 
+
+        }
+        if(empty($time)) {
+
+            return $this->renderAPIError("Please enter reach time to proceed",''); 
+
+        }
+
+    }
+
+ 
+
+    if($parent_category_details['type'] == '2') {
+        
+        $location = '';
+        $time = '';
+    }
+
+    $params = [];
+    $params['post_id'] = $post_id;
+    $params['user_id'] = $userId;
+    $params['status'] = 1;
+    $params['basic_price'] = $basic_price;
+    $params['location'] = $location;
+    $params['reach_time'] = $time;
+    if($this->applications->apply($params)){
+
+        return $this->renderAPI([], "Sucessfully Applied", 'false', 'S14', 'true', 200); 
+    }else{
+
+        return $this->renderAPIError("Failed",'');    
+    }
+    return $this->renderAPIError(Raise::t('common','something_wrong_text'),''); 
+ 
+
+
+
+}
+
+function isValidNumber($input) {
+    // This regular expression matches integers and decimal numbers
+        $pattern = '/^\d+(\.\d+)?$/';
+    
+    // Check if the input matches the pattern
+        return preg_match($pattern, $input);
+    }
+
 
 
 function base64_to_jpeg($base64_string, $output_file) {

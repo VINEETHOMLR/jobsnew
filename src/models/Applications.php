@@ -288,6 +288,8 @@ class Applications extends Database {
             '.$where_str.'  '.$orderby.' '.$limit.' ';
 
        
+
+       
         $rows = $this->callsql($sql,"rows");
         $resp = [];
         if(!empty($rows)) {
@@ -317,6 +319,43 @@ class Applications extends Database {
         $datarray['game_list']['recordsList']       = !empty($resp) ? $resp :[];
 
         return $datarray;
+
+    }
+
+    public function checkApplied($params)
+    {
+
+        $post_id = $params['post_id'];
+        $user_id = $params['user_id'];
+
+        $sql = "SELECT id FROM $this->tableName WHERE post_id='$post_id' AND user_id='$user_id' AND status IN(1,4,5,6)";
+
+        $result = $this->callsql($sql,'value');
+        if($result) {
+
+            return true;
+
+        }
+        return false;
+
+    }
+
+    public function apply($params)
+    {
+
+        $post_id = $params['post_id'];
+        $user_id = $params['user_id'];
+        $status = $params['status'];
+        $basic_price = $params['basic_price'];
+        $location = $params['location'];
+        $reach_time = $params['reach_time'];
+
+        $created_at = time();
+
+        $sql = "INSERT INTO $this->tableName SET post_id='$post_id',user_id='$user_id',status='$status',basic_price='$basic_price',location='$location',reach_time='$reach_time',created_at='$created_at'";
+
+        $this->query($sql);
+        return $this->execute();
 
     }
 
