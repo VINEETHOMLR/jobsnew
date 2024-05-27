@@ -842,6 +842,50 @@ class User extends Database
 
     }
 
+    public function updateBaseCharge($params)
+    {
+
+        $base_charge   = $params['base_charge'];
+        $user_id    = $params['user_id'];
+
+        $updated_at = time();
+
+
+       
+        $sql = "UPDATE user_extra SET basic_charge='$base_charge',updated_at='$updated_at' WHERE user_id='$user_id'";
+
+        $this->query($sql);
+        $result = $this->execute();
+
+        return $result;
+
+
+
+
+
+    }
+
+    
+    public function getBaseCharge($params)
+    {
+
+        $user_id    = $params['user_id'];
+
+        $updated_at = time();
+
+
+       
+        $sql = "SELECT basic_charge FROM user_extra WHERE user_id='$user_id'";
+        return $this->callsql($sql,'value');
+
+
+
+
+
+
+    }
+
+
 
         
 

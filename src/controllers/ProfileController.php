@@ -190,6 +190,49 @@ class ProfileController extends Controller
 
 
     }
+
+    public function actionupdateBaseCharge()
+    {
+
+        $input      = $_POST;
+        $base_charge      = issetGet($input,'base_charge','');
+        $userObj = Raise::$userObj;
+        $userId = $userObj['id'];
+        if($userObj['role_id']!='2') {
+            
+            return $this->renderAPIError('Please login as employee',''); 
+        }
+        if(empty($base_charge)) {
+            
+            return $this->renderAPIError('Please enter base charge to proceed',''); 
+        }
+        if(!empty($base_charge) && !$this->isValidNumber($base_charge)) {
+            
+            return $this->renderAPIError('Please enter valid base charge to proceed',''); 
+        }
+
+        $params = [];
+        $params['base_charge'] = $base_charge;
+        $params['user_id']     = $userId;
+
+        $basic_charge = 0;
+
+        if($this->usermdl->updateBaseCharge($params)) {
+
+            $basic_charge = $this->usermdl->getBaseCharge($params);
+            $basic_charge = number_format($basic_charge,2);
+            return $this->renderAPI(['basic_charge'=>$basic_charge], "Sucessfully updated the base charge", 'false', 'S14', 'true', 200);     
+        }
+        else{
+
+            return $this->renderAPIError("Failed to update the details",'');    
+        }
+        return $this->renderAPIError(Raise::t('common','something_wrong_text'),''); 
+
+
+
+
+    }
     function isValidNumber($input) {
     // This regular expression matches integers and decimal numbers
         $pattern = '/^\d+(\.\d+)?$/';
