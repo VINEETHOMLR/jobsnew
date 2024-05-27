@@ -213,6 +213,53 @@ public function actionJobAssign(){
 
 }
 
+public function actionGetJobDetails()
+{
+
+    $input   = $_POST;
+        //print_r($input);die();
+    $userObj = Raise::$userObj;
+    $userId  = $userObj['id'];
+
+    $post_id        = issetGet($input,'post_id','0');
+    if(empty($post_id)) {
+
+        return $this->renderAPIError("Invalid job",''); 
+    }
+
+    $details = $this->jobs->findByPK($post_id);
+    if(empty($details)) {
+
+        return $this->renderAPIError("Invalid job",'');
+
+    }
+
+    $images = [];
+
+    foreach(json_decode($details->images) as $key=>$value){
+
+        $images[$key] = BASEURL.'web/upload/images/'.$value;
+    
+    }
+
+   
+
+    $data = [];
+    $data['title'] = $details->title;
+    $data['description'] = $details->description;
+    $data['distance_away'] = '10.km';
+    $data['images'] = $images;
+    $data['service_area'] = $details->location;
+
+    return $this->renderAPI($data, "Success", 'false', 'S14', 'true', 200); 
+
+
+
+
+    
+
+}
+
 
 function base64_to_jpeg($base64_string, $output_file) {
 
