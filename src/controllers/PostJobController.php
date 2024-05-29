@@ -447,6 +447,40 @@ public function actionAcceptRejectInvitation()
 
 }
 
+public function actionRecentJobs()
+{
+
+        
+
+        $userObj        = Raise::$userObj;
+        $user_id        = $userObj['id'];
+        $role           = $userObj['role_id'];
+        //$input          = $_POST;
+
+
+        if(empty($user_id)) 
+        {
+            $this->renderAPIError("Invalid User");
+        }
+
+        if($role!=2) 
+        {
+            $this->renderAPIError("Invalid Role");
+        }
+
+        $params = ['status' => '1','user_id' => $user_id ];
+
+        $List  = $this->jobs->getRecentJobs($params);
+
+        
+        $status = 'true';
+        $show_alert = 'false';
+        $code = 'S16';
+        return $this->renderAPI($List, "Recent jobs", $show_alert, $code, $status, 200);
+
+
+}
+
 function isValidNumber($input) {
     // This regular expression matches integers and decimal numbers
         $pattern = '/^\d+(\.\d+)?$/';
