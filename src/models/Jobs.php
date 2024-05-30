@@ -448,6 +448,98 @@ class Jobs extends Database
     }
 
     
-   
+
+   public function getMyOrders($filter){
+
+
+        $sql = $where_str = $select = '';
+        $where_str_array = array();
+        $status         = !empty($filter['status']) ? $filter['status'] : '';
+        $user_id        = !empty($filter['user_id']) ? $filter['user_id'] : '0';
+
+        $where_str = " ( status IN (3,4) AND  jobseeker_id = $user_id )  ";
+
+        $select = ' * ';
+        
+        $limit = '';
+
+        $orderarray = [];
+
+        $orderby = ' ORDER BY id DESC ';
+    
+
+
+        $sql = 'SELECT '.$select.'
+        FROM 
+            job_post 
+        WHERE 
+            '.$where_str.' '.$orderby.' '.$limit.' ';
+
+       
+        $rows = $this->callsql($sql,"rows");
+        $resp = [];
+
+        
+        if(!empty($rows)) {
+
+            $statusArray = ['1'=>'Posted','2'=>'Confirmation Pending','3'=>'Jobseeker Accepted','4'=>'Completed'];
+
+            $paystatusArray = ['0'=>'New','1'=>'Paid','2'=>'Requested','3'=>'Pending'];
+
+            foreach($rows as $index=>$value){
+
+
+                $parent_category_id = $this->callsql("SELECT parent_category_id FROM  category  WHERE id='".$value['category_id']."' ",'value');
+
+                $type = 2;
+                if(isset($parent_category_id) && !empty($parent_category_id))
+                    $type = $this->callsql("SELECT type FROM  parent_category  WHERE id='".$parent_category_id."'  ",'value');
+
+
+                $images = json_decode($value['images'],true);
+                foreach ($images as $key => $image) {
+                    $images[$key] =  BASEURL.'web/upload/images/'.$image;
+                }
+               
+                $resp[] = array('title'            => $value['title'],
+                                'customer_id'      => $value['user_id'],
+                                'latitude'         => $value['latitude'],
+                                'longitude'        => $value['longitude'],
+                                'location'         => $value['location'],
+                                'description'      => $value['description'],
+                                'images'           => $images,
+                                'status'           => $value['status'],
+                                'status_text'      => $statusArray[$value['status']],
+                                'category_id'      => $value['category_id'],
+                                'updated_at'       => $value['updated_at'],
+                                'jobseeker_id'     => $value['jobseeker_id'],
+                                'created_at'       => $value['created_at'],
+                                'labour_cost'      => $value['labour_cost'],
+                                'material_cost'    => $value['material_cost'],
+                                'total_amount'     => $value['total_amount'],
+                                'payment_status'   => $value['payment_status'],
+                                'payment_status_text'   => $paystatusArray[$value['payment_status']],
+                                'type'             => $type
+                               ); 
+
+            }
+            //$totalPages = floor($getTotal/$perPage); 
+            //if(($getTotal%$perPage)!=0){$totalPages = $totalPages+1;} 
+
+        }
+
+
+        $recordsFiltered = count($resp);
+
+       
+        $datarray['game_list']['recordsTotal']      = !empty($recordsFiltered)?strval($recordsFiltered):'0';
+        //$datarray['game_list']['recordsFiltered']   = !empty($resp)?strval($recordsFiltered):'0';
+        //$datarray['game_list']['totalPages']        = !empty($totalPages)?strval($totalPages):'0';
+        //$datarray['game_list']['currentPage']       = !empty($getTotal)?strval($page):'0';
+        $datarray['game_list']['recordsList']       = !empty($resp) ? $resp :[];
+
+        return $datarray;
+
+    }
     
 }

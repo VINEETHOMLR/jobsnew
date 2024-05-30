@@ -481,6 +481,38 @@ public function actionRecentJobs()
 
 }
 
+public function actionMyOrder()
+{   
+
+        $userObj        = Raise::$userObj;
+        $user_id        = $userObj['id'];
+        $role           = $userObj['role_id'];
+        //$input          = $_POST;
+
+
+        if(empty($user_id)) 
+        {
+            $this->renderAPIError("Invalid User");
+        }
+
+        if($role!=2) 
+        {
+            $this->renderAPIError("Invalid Role");
+        }
+
+        $params = ['status' => '1','user_id' => $user_id ];
+
+        $List  = $this->jobs->getMyOrders($params);
+
+        
+        $status = 'true';
+        $show_alert = 'false';
+        $code = 'S17';
+        return $this->renderAPI($List, "My Orders", $show_alert, $code, $status, 200);
+
+
+}
+
 function isValidNumber($input) {
     // This regular expression matches integers and decimal numbers
         $pattern = '/^\d+(\.\d+)?$/';
