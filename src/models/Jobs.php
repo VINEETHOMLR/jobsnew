@@ -447,6 +447,32 @@ class Jobs extends Database
 
     }
 
+    public function acceptJob($params)
+    {
+
+        $post_id = $params['post_id'];
+        $status  = $params['status'];
+        $jobseeker_id  = $params['jobseeker_id'];
+        $action = $params['action'];
+        
+        $updated_at = time();
+        $sql = "UPDATE job_post SET jobseeker_id='$jobseeker_id',status='$status',updated_at='$updated_at' WHERE id='$post_id'";
+
+        $this->query($sql);
+        $result = $this->execute();
+
+        $application_status = $action == '1' ? '4' : '2';
+
+
+        $sql = "UPDATE applications SET status='$application_status',updated_at='$updated_at' WHERE post_id ='$post_id' ORDER BY id DESC LIMIT 1";
+
+        $this->query($sql);
+        $result = $this->execute();
+
+        return $result;
+
+    }
+
     
 
    public function getMyOrders($filter){
