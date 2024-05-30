@@ -411,7 +411,7 @@ class Jobs extends Database
                                 'longitude'        => $value['longitude'],
                                 'location'         => $value['location'],
                                 'description'      => $value['description'],
-                                'images'           => $value['images'],
+                                'images'           => $images,
                                 'status'           => $value['status'],
                                 'status_text'      => $statusArray[$value['status']],
                                 'distance'         => $value['distance'],
