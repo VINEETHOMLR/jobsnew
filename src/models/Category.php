@@ -174,6 +174,50 @@ class Category extends Database
         return $this->callsql($sql,'row');
 
     }
+
+
+    public function getAllCategory()
+    {
+
+       
+        $response = $this->callSql("SELECT *  FROM parent_category WHERE  status=1 ORDER BY id DESC ","rows");
+
+        $category_list = array();
+
+        if(empty($response)) {
+             
+             return []; 
+        }
+
+        if (!empty($response)) {
+
+            foreach ($response as $key => $info) {
+                   
+               
+                $response[$key]['categoryList'] = [];
+
+                $categorydata = $this->callSql("SELECT *  FROM $this->tableName WHERE parent_category_id= '$info[id]' AND status=1 ORDER BY id DESC ","rows");
+
+                foreach($categorydata as $k => $val)
+                {
+
+                    $counts = $this->callSql("SELECT IFNULL(COUNT(id),0)  FROM job_post WHERE category_id= '$val[id]'  ","value");
+
+                    $response[$key]['categoryList'][$k]['id'] = $val['id'];
+                    $response[$key]['categoryList'][$k]['title'] = $val['name'];
+                    $response[$key]['categoryList'][$k]['count'] = $counts;
+
+                }
+
+
+                
+            }
+        }
+
+        $result = $response; 
+
+        return $result;
+    } 
    
     
 }

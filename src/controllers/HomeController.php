@@ -84,5 +84,43 @@ class HomeController extends Controller
 
 
     }
+
+    public function actionAllCategoryList()
+    {
+
+        
+
+        $userObj        = Raise::$userObj;
+        $user_id        = $userObj['id'];
+        $role           = $userObj['role_id'];
+        //$input          = $_POST;
+
+
+
+        if(empty($user_id)) 
+        {
+            $this->renderAPIError("Invalid User");
+        }
+
+        if($role!=2) 
+        {
+            $this->renderAPIError("Invalid Role");
+        }
+
+        $params = [];
+
+
+        $List  = (new Category)->getAllCategory();
+        
+
+      
+        
+        $status = 'true';
+        $show_alert = 'false';
+        $code = 'S17';
+        return $this->renderAPI($List, "All Category List", $show_alert, $code, $status, 200);
+
+
+    }
     
 }
