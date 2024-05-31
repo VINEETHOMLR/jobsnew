@@ -885,6 +885,29 @@ class User extends Database
 
     }
 
+    public function updateLocation($params)
+    {
+
+        $latitude    = $params['latitude'];
+        $longitude   = $params['longitude'];
+        $user_id     = $params['user_id'];
+
+        $updated_at = time();
+        $sql = "UPDATE user_extra SET latitude='$latitude',longitude='$longitude',updated_at='$updated_at' WHERE user_id='$user_id'";
+
+        $this->query($sql);
+        $result = $this->execute();
+        return $result;
+
+
+
+
+
+    }
+
+
+    
+
 
 
         

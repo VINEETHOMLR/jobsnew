@@ -233,6 +233,43 @@ class ProfileController extends Controller
 
 
     }
+    public function actionUpdateLocation()
+    {
+
+        $input          = $_POST;
+        $latitude       = issetGet($input,'latitude','');
+        $longitude      = issetGet($input,'longitude','');
+        $userObj = Raise::$userObj;
+        $userId = $userObj['id'];
+        if($userObj['role_id']!='2') {
+            
+            return $this->renderAPIError('Please login as employee',''); 
+        }
+        if(empty($latitude)) {
+            
+            return $this->renderAPIError('Please pass latitude',''); 
+        }
+        if(empty($longitude)) {
+            
+            return $this->renderAPIError('Please pass longitude',''); 
+        }
+
+        $params = [];
+        $params['latitude']  = $latitude;
+        $params['longitude'] = $longitude;
+        $params['user_id']   = $userId;
+
+        if($this->usermdl->updateLocation($params))
+        {
+
+            return $this->renderAPI([], "Sucessfully updated", 'false', 'S14', 'true', 200);  
+
+        }
+
+        return $this->renderAPIError(Raise::t('common','something_wrong_text'),''); 
+        
+
+    }
     function isValidNumber($input) {
     // This regular expression matches integers and decimal numbers
         $pattern = '/^\d+(\.\d+)?$/';
