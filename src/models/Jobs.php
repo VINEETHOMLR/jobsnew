@@ -407,7 +407,9 @@ class Jobs extends Database
                     $images[$key] =  BASEURL.'web/upload/images/'.$image;
                 }
                
-                $resp[] = array('title'            => $value['title'],
+                $resp[] = array(
+                                'id'               => $value['id'],
+                                'title'            => $value['title'],
                                 'customer_id'      => $value['user_id'],
                                 'latitude'         => $value['latitude'],
                                 'longitude'        => $value['longitude'],
