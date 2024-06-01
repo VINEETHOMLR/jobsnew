@@ -440,11 +440,11 @@ class Jobs extends Database
         $recordsFiltered = count($resp);
 
        
-        $datarray['list']['recordsTotal']      = !empty($recordsFiltered)?strval($recordsFiltered):'0';
+        $datarray['game_list']['recordsTotal']      = !empty($recordsFiltered)?strval($recordsFiltered):'0';
         //$datarray['game_list']['recordsFiltered']   = !empty($resp)?strval($recordsFiltered):'0';
         //$datarray['game_list']['totalPages']        = !empty($totalPages)?strval($totalPages):'0';
         //$datarray['game_list']['currentPage']       = !empty($getTotal)?strval($page):'0';
-        $datarray['list']['recordsList']       = !empty($resp) ? $resp :[];
+        $datarray['game_list']['recordsList']       = !empty($resp) ? $resp :[];
 
         return $datarray;
 
@@ -561,11 +561,11 @@ class Jobs extends Database
         $recordsFiltered = count($resp);
 
        
-        $datarray['list']['recordsTotal']      = !empty($recordsFiltered)?strval($recordsFiltered):'0';
+        $datarray['game_list']['recordsTotal']      = !empty($recordsFiltered)?strval($recordsFiltered):'0';
         //$datarray['game_list']['recordsFiltered']   = !empty($resp)?strval($recordsFiltered):'0';
         //$datarray['game_list']['totalPages']        = !empty($totalPages)?strval($totalPages):'0';
         //$datarray['game_list']['currentPage']       = !empty($getTotal)?strval($page):'0';
-        $datarray['list']['recordsList']       = !empty($resp) ? $resp :[];
+        $datarray['game_list']['recordsList']       = !empty($resp) ? $resp :[];
 
         return $datarray;
 
