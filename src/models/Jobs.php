@@ -318,7 +318,7 @@ class Jobs extends Database
         $status         = !empty($filter['status']) ? $filter['status'] : '';
         $user_id        = !empty($filter['user_id']) ? $filter['user_id'] : '0';
 
-        $user_extra = $this->callsql("SELECT latitude,longitude,category FROM  user_extra  WHERE user_id='".$user_id."' ",'row');
+        $user_extra = $this->callsql("SELECT latitude,longitude,category,radius FROM  user_extra  WHERE user_id='".$user_id."' ",'row');
 
         
         //if(!empty($filter['page'])){
@@ -391,13 +391,15 @@ class Jobs extends Database
 
 
                 $parent_category_id = $this->callsql("SELECT parent_category_id FROM  category  WHERE id='".$value['category_id']."' ",'value');
+                $is_applied         = $this->callsql("SELECT count(id) FROM applications WHERE post_id='$value[id]' AND user_id='$user_id'",'value');
+                $is_applied = !empty($is_applied) ? true :false;
 
                 $type = 2;
                 if(isset($parent_category_id) && !empty($parent_category_id))
                     $type = $this->callsql("SELECT type FROM  parent_category  WHERE id='".$parent_category_id."'  ",'value');
 
             
-                if($type == 1 && $value['distance']>5)
+                if($type == 1 && $value['distance']<=$user_extra['radius'])
                     continue;
 
                 $images = json_decode($value['images'],true);
@@ -424,7 +426,8 @@ class Jobs extends Database
                                 'total_amount'     => $value['total_amount'],
                                 'payment_status'   => $value['payment_status'],
                                 'payment_status_text'   => $paystatusArray[$value['payment_status']],
-                                'type'             => $type
+                                'type'             => $type,
+                                'is_applied'       => $is_applied
                                ); 
 
             }
