@@ -13,6 +13,7 @@ use src\models\User;
 use src\models\Jobs;
 use src\models\Applications;
 use src\models\Category;
+use src\models\UserBank;
 
 
 
@@ -30,6 +31,7 @@ class PostJobController extends Controller
         $this->jobs = (new Jobs);
         $this->applications = (new Applications);
         $this->categorymdl = (new Category);
+        $this->userbankmdl = (new UserBank);
     }
 
     
@@ -359,6 +361,118 @@ public function actionApplyJob()
 
 }
 
+public function actionRequestMoney()
+{
+
+    $input   = $_POST;
+        //print_r($input);die();
+    $userObj = Raise::$userObj;
+    $userId  = $userObj['id'];
+
+    $post_id         = issetGet($input,'post_id','0');
+    $labour_cost     = issetGet($input,'labour_cost','0');
+    $material_cost        = issetGet($input,'material_cost','');
+    
+
+    if($userObj['role_id']!='2') {
+        return $this->renderAPIError("Please login as employee",''); 
+
+    }
+
+    if(empty($post_id)) {
+
+        return $this->renderAPIError("Please select a job to proceed",''); 
+
+    }
+
+    $details = $this->jobs->findByPK($post_id);
+    if(empty($details)) {
+
+        return $this->renderAPIError("Invalid job",'');
+
+    }
+
+    if($details->jobseeker_id != $userId ) {
+
+        return $this->renderAPIError("Please select the job assigned to you",'');
+
+    }
+
+    if(!in_array($details->status,[3])) {
+
+        return $this->renderAPIError("Selected job is not assigned to you",'');
+
+    }
+    if(in_array($details->payment_status,[1])) {
+
+        return $this->renderAPIError("Employer already paid the amount",'');
+
+    }
+    if(in_array($details->payment_status,[2])) {
+
+        return $this->renderAPIError("You already requested the amount",'');
+
+    }
+
+    //check bank added
+    $params = [];
+    $params['user_id'] = $userId;
+
+    $banks = $this->userbankmdl->getBanks($params);
+    if(empty($banks)) {
+
+        return $this->renderAPIError("Please add a bank account to proceed",''); 
+
+    }
+    if(empty($labour_cost)) {
+
+        return $this->renderAPIError("Please enter labour cost to proceed",''); 
+
+    }
+
+    $category = $details->category_id;
+    $parentCatgeory = $this->categorymdl->findByPK($category);
+    $parent_category_details = $this->categorymdl->parentCategoryDetails($parentCatgeory->parent_category_id);
+    if($parent_category_details['type'] == '1') { //local
+
+        
+
+        if(empty($material_cost)) {
+
+            return $this->renderAPIError("Please enter material cost to proceed",''); 
+
+        }
+        
+
+    }
+    if($parent_category_details['type'] == '1') { //local
+
+        
+
+        if(empty($material_cost)) {
+
+            return $this->renderAPIError("Please enter material cost to proceed",''); 
+
+        }
+        
+
+    }
+
+    $params = [];
+    $params['labour_cost']   = $labour_cost;
+    $params['material_cost'] = $material_cost;
+    $params['user_id']       = $userId;
+    $params['payment_status'] = 2
+
+
+
+
+
+
+    
+
+}
+
 public function actionAcceptRejectInvitation()
 {
 
@@ -431,16 +545,6 @@ public function actionAcceptRejectInvitation()
     }
     return $this->renderAPIError(Raise::t('common','something_wrong_text'),''); 
  
-
-
-
-    
-
-    
-
-
-
-
 
 
 
