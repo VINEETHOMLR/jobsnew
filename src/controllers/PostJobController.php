@@ -386,11 +386,15 @@ public function actionRequestMoney()
     }
 
     $details = $this->jobs->findByPK($post_id);
+
+
     if(empty($details)) {
 
         return $this->renderAPIError("Invalid job",'');
 
     }
+
+   
 
     if($details->jobseeker_id != $userId ) {
 
@@ -415,15 +419,15 @@ public function actionRequestMoney()
     }
 
     //check bank added
-    $params = [];
-    $params['user_id'] = $userId;
+    // $params = [];
+    // $params['user_id'] = $userId;
 
-    $banks = $this->userbankmdl->getBanks($params);
-    if(empty($banks)) {
+    // $banks = $this->userbankmdl->getBanks($params);
+    // if(empty($banks)) {
 
-        return $this->renderAPIError("Please add a bank account to proceed",''); 
+    //     return $this->renderAPIError("Please add a bank account to proceed",''); 
 
-    }
+    // }
     if(empty($labour_cost)) {
 
         return $this->renderAPIError("Please enter labour cost to proceed",''); 
@@ -462,9 +466,18 @@ public function actionRequestMoney()
     $params['labour_cost']   = $labour_cost;
     $params['material_cost'] = $material_cost;
     $params['user_id']       = $userId;
-    $params['payment_status'] = 2
+    $params['payment_status'] = 2;
+    $params['post_id'] = $post_id;
+    if($this->jobs->requestMoney($params)){
 
 
+        $status = 'true';
+        $show_alert = 'false';
+        $code = 'S16';
+        return $this->renderAPI([], "Successfully Requested", $show_alert, $code, $status, 200);
+
+    }
+    return $this->renderAPIError("Something went wrong",''); 
 
 
 
