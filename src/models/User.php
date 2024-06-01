@@ -776,7 +776,7 @@ class User extends Database
      public function checkProfileCompleted($id)
     {
 
-        $sql = "SELECT category,address,id_photo,basic_charge,radius FROM user_extra WHERE user_id='$id'";
+        $sql = "SELECT category,address,id_photo,radius FROM user_extra WHERE user_id='$id'";
         $result = $this->callsql($sql,'row');
 
 
