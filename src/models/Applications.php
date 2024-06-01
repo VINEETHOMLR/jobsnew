@@ -359,7 +359,22 @@ class Applications extends Database {
 
     }
 
-    
+    public function insertSavedApplicant($params)
+    {
+
+        $post_id        = $params['post_id'];
+        $user_id        = $params['user_id'];
+        $job_seeker_id  = $params['applicant_id'];
+        
+        $created_at = time();
+
+
+        $sql = "INSERT INTO `saved_applicants` SET post_id='$post_id',user_id='$user_id',job_seeker_id='$job_seeker_id',created_at='$created_at'";
+
+        $this->query($sql);
+        return $this->execute();
+
+    }
 
 
 }
