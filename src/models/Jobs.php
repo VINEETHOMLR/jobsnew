@@ -572,5 +572,35 @@ class Jobs extends Database
         return $datarray;
 
     }
+
+    public function requestMoney($params)
+    {
+
+         
+        $labour_cost    = $params['labour_cost'];
+        $material_cost  = $params['material_cost'];
+        $user_id        = $params['user_id'];
+        $payment_status = $params['payment_status'];
+        $id = $params['post_id'];
+        $updated_at = time();
+
+        $sql = "UPDATE $this->tableName SET labour_cost='$labour_cost',material_cost='$material_cost',payment_status='$payment_status',updated_at='$updated_at' WHERE id='$id'";
+        $this->query($sql);
+        $result = $this->execute();
+
+        $total_amount  = $labour_cost+$material_cost;
+        $name = $this->callsql("SELECT name FROM user WHERE id='$id'",'value');
+        $employer_id  = $this->callsql("SELECT user_id FROM job_post WHERE id='$id'",'value');
+
+        $message = $name.' requested you '.$total_amount.' INR';
+        $data = json_encode(['data'=>$message,'id'=>$id]);
+        $result = (new Notification)->insertNotification($employer_id ,$data,2);
+
+        return $result;
+
+               
+
+
+    }
     
 }
