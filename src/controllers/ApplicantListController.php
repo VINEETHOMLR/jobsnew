@@ -214,4 +214,62 @@ public function actionSaveApplicantData(){
 
 }
 
+public function actionReportApplicant(){
+
+
+        $input   = $_POST;
+        //print_r($input);die();
+        $userObj = Raise::$userObj;
+        $userId  = $userObj['id'];
+        $role    = $userObj['role_id'];
+
+        $post_id        = issetGet($input,'post_id','0');
+        $applicant_id   = issetGet($input,'applicant_id','0');
+        $remark         = issetGet($input,'remark','');
+        
+
+        if(empty($userId)) {
+            return $this->renderAPIError(Raise::t('common','err_userid_required'),'');   
+        }
+        if($role!=1) {
+            return $this->renderAPIError('Invalid user','');   
+        }
+        
+        if(empty($post_id)) {
+            return $this->renderAPIError("Invalid job",''); 
+        }
+
+        if(empty($applicant_id)) {
+            return $this->renderAPIError("Invalid Applicant",''); 
+        }
+
+        $job = $this->mdl->callsql("SELECT COUNT(`id`) FROM job_post WHERE id=$post_id  ",'value');
+
+        if(empty($job)) {
+            return $this->renderAPIError("Invalid Job",''); 
+        }
+
+        $applicant = $this->mdl->callsql("SELECT COUNT(`id`) FROM applications WHERE user_id='".$applicant_id."' AND post_id='".$post_id."' ",'value');
+
+        if(empty($applicant)) {
+            return $this->renderAPIError("Invalid Job",''); 
+        }
+    
+        $params = [];
+        $params['post_id']              = $post_id;
+        $params['applicant_id']         = $applicant_id;
+        $params['user_id']              = $userId;
+        $params['remark']               = $remark;
+        
+        if($this->mdl->insertReportApplicant($params))
+        {
+            return $this->renderAPI([], "Applicant Reported sucessfully", 'false', 'S22', 'true', 200); 
+        }else{
+
+            return $this->renderAPIError("Failed",'');    
+        }
+        return $this->renderAPIError(Raise::t('common','something_wrong_text'),''); 
+
+}
+
 }

@@ -375,6 +375,26 @@ class Applications extends Database {
         return $this->execute();
 
     }
+    public function insertReportApplicant($params)
+    {
+
+        $post_id        = $params['post_id'];
+        $user_id        = $params['user_id'];
+        $job_seeker_id  = $params['applicant_id'];
+        $remark         = $params['remark'];
+        
+        $created_at = time();
+
+
+        $sql = "INSERT INTO `report_applicants` SET post_id='$post_id',user_id='$user_id',job_seeker_id='$job_seeker_id',remark='$remark',created_at='$created_at'";
+
+        $this->query($sql);
+        return $this->execute();
+
+    }
+
+
+    
 
 
 }
