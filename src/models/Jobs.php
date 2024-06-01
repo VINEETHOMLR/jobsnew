@@ -398,8 +398,8 @@ class Jobs extends Database
                 if(isset($parent_category_id) && !empty($parent_category_id))
                     $type = $this->callsql("SELECT type FROM  parent_category  WHERE id='".$parent_category_id."'  ",'value');
 
-            
-                if($type == 1 && $value['distance']<=$user_extra['radius'])
+                $radius = !empty($user_extra['radius']) ? $user_extra['radius'] : '5';
+                if($type == 1 && $value['distance']<=$radius)
                     continue;
 
                 $images = json_decode($value['images'],true);
