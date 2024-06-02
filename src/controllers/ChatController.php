@@ -53,6 +53,28 @@ class ChatController extends Controller
 
     }
 
+    public function actionGetJobseekerChatMessages()
+    {
+
+        $input        = $_POST;
+        $userObj      = Raise::$userObj;
+        $role_id      = $userObj['role_id'];
+        $employer_id  = $_POST['employer_id'];
+        $post_id = $_POST['post_id'];
+        $params = [];
+        $params['employer_id']  = $employer_id;
+        $params['jobseeker_id'] = $userObj['id'];
+        $params['post_id'] = $post_id;
+        $chat_id = $this->chats->CreateChat($params);
+
+        $params = [];
+        $params['chat_id'] = $chat_id;
+        $chatList = $this->chats->getMessages($params);
+        $data         = ['messageList'=>$chatList];
+        return $this->renderAPI($data, 'Success', 'false', 'S01', 'true', 200);
+
+    }
+
     public function actionSendMessage()
     {
 
