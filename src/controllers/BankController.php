@@ -246,6 +246,30 @@ class BankController extends Controller
 
     }
 
+    public function actionGetBank()
+    {
+
+        
+        $userObj = Raise::$userObj;
+        $user_id = $userObj['id'];
+
+        
+        if($userObj['role_id']!='2') {
+            
+            return $this->renderAPIError('Please login as employee',''); 
+        }
+
+        $params = [];
+        $params['user_id'] = $user_id;
+        $response = $this->razorpay->getBank($params);
+        $status = $response['status'];
+        $bankDetails = $response['bankDetails'];
+        return $this->renderAPI($bankDetails, 'Bank Data', 'false', 'S01', $status, 200);
+
+
+
+    }
+
     
 
     

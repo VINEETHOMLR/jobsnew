@@ -13,7 +13,7 @@ class Razorpay extends Database
         parent::__construct(Raise::params()[$db]);
         $this->rds = new RRedis();
         $this->logId = '';
-        $this->url = ['1'=>'https://api.razorpay.com/v1/contacts','2'=>'https://api.razorpay.com/v1/fund_accounts'];
+        $this->url = ['1'=>'https://api.razorpay.com/v1/contacts','2'=>'https://api.razorpay.com/v1/fund_accounts','3'=>'https://api.razorpay.com/v1/fund_accounts/'];
         
     }
 
@@ -146,10 +146,50 @@ class Razorpay extends Database
     {
 
         $user_id = $params['user_id'];
-        $sql = "SELECT account_id FROM user_bank WHERE user_id='$user_id' AND status='1' ORDER BY id DESC LIMIT 1";
-        $account_id = $this->callsql($sql,'value');
+        $sql = "SELECT id,account_id FROM user_bank WHERE user_id='$user_id' AND status='1' ORDER BY id DESC LIMIT 1";
+        $details = $this->callsql($sql,'row');
+        $account_id = $details['account_id'];
+        $id         = $details['id'];
+
+        $callurl = $this->url['3'].$account_id;
+        $response = $this->getCallCurl($callurl);
+        $response  = json_decode($response,true);
+        $status = false;
+        $bankDetails = [];
+        if(array_key_exists('id', $response)) {
+
+            $status = true;  
+            $bankDetails['id'] = $id;
+            $bankDetails['account_number'] = $response['account_number'];
+            $bankDetails['ifsc'] = $response['ifsc'];
+            $bankDetails['account_holder'] = $response['name'];
+
+        }
+
+        return ['status'=>$status,'bankDetails'=>$bankDetails];
+
+
+
         
 
+
+    }
+
+    public function getCallCurl($url)
+    {
+
+        $ch = curl_init($url);
+
+        // Set cURL options
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_USERPWD, RAZORPAY_KEY . ':' . RAZORPAY_SECRET);
+        curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Disable SSL verification for simplicity
+
+        // Execute cURL request
+        return $response = curl_exec($ch);
+
+       
 
     }
 
