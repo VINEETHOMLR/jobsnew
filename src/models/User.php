@@ -904,6 +904,21 @@ class User extends Database
 
 
     }
+    public function getDetails($id)
+    {
+
+       
+
+        
+        $sql = "SELECT * FROM $this->tableName  WHERE id='$id'";
+        return $this->callsql($sql,'row');
+        
+
+
+
+
+
+    }
 
 
     

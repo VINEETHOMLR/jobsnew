@@ -113,6 +113,16 @@ class UserBank extends Database
 
     } 
 
+    public function deleteBank($id)
+    {
+
+
+        $sql = "UPDATE  $this->tableName SET status='3' WHERE id='$id'";
+        $this->query($sql);
+        return $this->execute();
+
+    }
+
 
    
 

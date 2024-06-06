@@ -117,7 +117,7 @@ class Razorpay extends Database
 
             $time = time();
 
-            $sql = "UPDATE user_bank SET status='2',updated_at='$time' WHERE user_id='$params[user_id]'";
+            $sql = "UPDATE user_bank SET status='2',updated_at='$time' WHERE user_id='$params[user_id]' AND status='1'";
             $this->query($sql);
             $this->execute();
 
