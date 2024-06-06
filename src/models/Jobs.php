@@ -602,5 +602,37 @@ class Jobs extends Database
 
 
     }
+    public function addRating($params)
+    {
+
+         
+        $post_id        = $params['post_id'];
+        $jobseeker_id   = $params['jobseeker_id'];
+        $user_id        = $params['user_id'];
+        $remark         = $params['remark'];
+        $rating         = $params['rating'];
+
+
+        $updated_at = time();
+
+        $sql = "UPDATE $this->tableName SET rating='$rating',remark='$remark',updated_at='$updated_at' WHERE id='$post_id'";
+        $this->query($sql);
+        $result = $this->execute();
+
+       
+
+        $count          = $this->callsql("SELECT IFNULL(COUNT(id),0) FROM $this->tableName WHERE jobseeker_id='$jobseeker_id'",'value');
+        $total_Rating   = $this->callsql("SELECT IFNULL(SUM(rating),0) FROM job_post WHERE jobseeker_id='$jobseeker_id'",'value');
+        $newrating      = ($total_Rating/$count);
+
+        $sql = "UPDATE user_extra SET rating='$newrating' WHERE user_id='$jobseeker_id'";
+        $this->query($sql);
+        $result = $this->execute();
+ 
+        
+        return $result;
+
+    }
+    
     
 }

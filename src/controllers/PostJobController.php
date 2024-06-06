@@ -632,6 +632,72 @@ public function actionMyOrder()
 
 }
 
+public function actionRateEmployee()
+{
+
+    $input   = $_POST;
+        //print_r($input);die();
+    $userObj = Raise::$userObj;
+    $userId  = $userObj['id'];
+
+    $post_id         = issetGet($input,'post_id','0');
+    $rating         = issetGet($input,'rating','');
+
+    $remark         = issetGet($input,'remark','');
+
+    if($userObj['role_id']!='1') {
+        return $this->renderAPIError("Please login as customer",''); 
+
+    }
+    if(empty($post_id)) {
+
+        return $this->renderAPIError("Invalid job",''); 
+    }
+
+    $details = $this->jobs->findByPK($post_id);
+
+    if(empty($details)) {
+
+        return $this->renderAPIError("Invalid job",'');
+
+    }
+
+    if($rating=="") {
+        return $this->renderAPIError("Please rate  Employee",'');
+    }
+
+    $jobseeker_id = $details->jobseeker_id;
+
+    if(empty($jobseeker_id)){
+        return $this->renderAPIError("Invalid job",'');
+    }
+
+
+
+
+    $params = [];
+    $params['post_id']      = $post_id;
+    $params['jobseeker_id'] = $jobseeker_id;
+    $params['user_id']      = $userId;
+    $params['rating']       = $rating;
+    $params['remark']       = $remark;
+    
+
+
+    if($this->jobs->addRating($params)){
+
+        $message =  'Successfully rated';
+
+    return $this->renderAPI([], $message, 'false', 'S22', 'true', 200); 
+    }
+    return $this->renderAPIError(Raise::t('common','something_wrong_text'),''); 
+ 
+
+
+
+
+}
+
 function isValidNumber($input) {
     // This regular expression matches integers and decimal numbers
         $pattern = '/^\d+(\.\d+)?$/';
