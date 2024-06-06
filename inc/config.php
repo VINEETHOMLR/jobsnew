@@ -58,6 +58,7 @@ define('REDIS_DB', $config['redis']['dbname']);
 
 define('RAZORPAY_KEY', $config['razorpay_key']);
 define('RAZORPAY_SECRET', $config['razorpay_secret']);
+define('RAZORPAY_URL', $config['razorpay_url']);
 
 
 //captcha setting
