@@ -14,7 +14,7 @@ class Razorpay extends Database
         parent::__construct(Raise::params()[$db]);
         $this->rds = new RRedis();
         $this->logId = '';
-        $this->url = ['1'=>'contacts','2'=>'fund_accounts','3'=>'fund_accounts/'];
+        $this->url = ['1'=>'contacts','2'=>'fund_accounts','3'=>'fund_accounts/','4'=>'orders/'];
         $this->user = new User();
         
     }
@@ -178,6 +178,78 @@ class Razorpay extends Database
 
         
 
+
+    }
+
+    public function createOrder($params)
+    {
+
+       $request_params = [];
+       $request_params['amount']            = $params['amount'];
+       $request_params['receipt']           = $params['receipt'];
+       $request_params['currency']          = "INR";
+       $request_params['payment_capture']   = "1";
+       
+
+       $log_params = [];
+       $log_params['amount']            = $params['amount'];
+       $log_params['receipt']           = $params['receipt'];
+       $log_params['currency']          = "INR";
+       $log_params['payment_capture']   = "1";
+       $log_params['log_type']  = '3'; //1-create account
+       $log_params['user_id']   = $params['user_id'];
+
+       $this->insertLog($log_params);
+
+
+       
+       $responseapi = $this->callcurl($request_params,RAZORPAY_URL.$this->url['4'],'POST');
+        if(ENV == 'dev'){
+
+           $responseapi = '{
+              "id": "order_EJh5rkJBRh1u1B",
+              "entity": "order",
+              "amount": 50000,
+              "amount_paid": 0,
+              "amount_due": 50000,
+              "currency": "INR",
+              "receipt": "rcptid_11",
+              "status": "created",
+              "attempts": 0,
+              "notes": [],
+              "created_at": 1595677116
+            }';
+
+        }
+
+       
+       
+       $this->updateLog($responseapi);
+       $response = json_decode($responseapi,true);
+
+       $status     = false;
+       $order_id = '';
+
+       if(array_key_exists('id',$response)) {
+
+           $status = true;
+           $order_id = $response['id'];
+           $message = 'Successfully created order created';
+
+       }else{
+
+          $status  = false; 
+          $message = '';
+
+       }
+
+       $return = [];
+       $return['status']        = $status;
+       $return['order_id']      = $order_id;
+       $return['message']       = $message;
+       $return['response']      = $responseapi;
+
+       return $return;
 
     }
 
