@@ -36,15 +36,8 @@ class Razorpay extends Database
        $log_params['user_id']   = $params['user_id'];
 
        $this->insertLog($log_params);
-
-
-       
        $response = $this->callcurl($request_params,RAZORPAY_URL.$this->url['1'],'POST');
-
-       $response = 'test';
-
-       echo $this->logId;
-       $this->updateLog($response);exit;
+       $this->updateLog($response);
        $response = json_decode($response,true);
 
        $status     = false;
