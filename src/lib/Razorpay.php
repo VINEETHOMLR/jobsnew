@@ -5,6 +5,7 @@ namespace src\lib;
 use inc\Raise;
 use src\lib\RRedis;
 use src\lib\Database;
+use src\models\User;
 
 class Razorpay extends Database
 {
@@ -13,7 +14,8 @@ class Razorpay extends Database
         parent::__construct(Raise::params()[$db]);
         $this->rds = new RRedis();
         $this->logId = '';
-        $this->url = ['1'=>'https://api.razorpay.com/v1/contacts','2'=>'https://api.razorpay.com/v1/fund_accounts','3'=>'https://api.razorpay.com/v1/fund_accounts/'];
+        $this->url = ['1'=>'contacts','2'=>'fund_accounts','3'=>'fund_accounts/'];
+        $this->user = new User();
         
     }
 
@@ -34,7 +36,10 @@ class Razorpay extends Database
        $log_params['user_id']   = $params['user_id'];
 
        $this->insertLog($log_params);
-       $response = $this->callcurl($request_params,$this->url['1'],'POST');
+
+
+       
+       $response = $this->callcurl($request_params,RAZORPAY_URL.$this->url['1'],'POST');
        $this->updateLog($response);
        $response = json_decode($response,true);
 
@@ -76,8 +81,8 @@ class Razorpay extends Database
         $updated_at = time();
 
         $sql = "UPDATE user SET connect_id='$contact_id',updated_at='$updated_at' WHERE id='$user_id'";
-        $this->query($sql);
-        $this->execute();
+        $this->user->query($sql);
+        $this->user->execute();
 
     }
 
@@ -103,7 +108,7 @@ class Razorpay extends Database
         $log_params['user_id']           = $params['user_id'];
 
         $this->insertLog($log_params);
-        $response = $this->callcurl($request_params,$this->url['2'],'POST');
+        $response = $this->callcurl($request_params,RAZORPAY_URL.$this->url['2'],'POST');
         $this->updateLog($response);
         $response = json_decode($response,true);
 
@@ -118,12 +123,12 @@ class Razorpay extends Database
             $time = time();
 
             $sql = "UPDATE user_bank SET status='2',updated_at='$time' WHERE user_id='$params[user_id]' AND status='1'";
-            $this->query($sql);
-            $this->execute();
+            $this->user->query($sql);
+            $this->user->execute();
 
             $sql = "INSERT INTO user_bank SET user_id='$params[user_id]',account_id='$account_id',status='1',created_at='$time',updated_at='$time'";
-            $this->query($sql);
-            $this->execute();
+            $this->user->query($sql);
+            $this->user->execute();
 
 
         }
@@ -147,11 +152,11 @@ class Razorpay extends Database
 
         $user_id = $params['user_id'];
         $sql = "SELECT id,account_id FROM user_bank WHERE user_id='$user_id' AND status='1' ORDER BY id DESC LIMIT 1";
-        $details = $this->callsql($sql,'row');
+        $details = $this->user->callsql($sql,'row');
         $account_id = $details['account_id'];
         $id         = $details['id'];
 
-        $callurl = $this->url['3'].$account_id;
+        $callurl = RAZORPAY_URL.$this->url['3'].$account_id;
         $response = $this->getCallCurl($callurl);
         $response  = json_decode($response,true);
         $status = false;
@@ -227,13 +232,13 @@ class Razorpay extends Database
 
         $request = json_encode($log_params);
         $user_id = $log_params['user_id'];
-        $type    = $log_params['type'];
+        $type    = $log_params['log_type'];
         $time    = time();
 
         $sql  =  "INSERT INTO pg_log SET request='$request',response='',user_id='$user_id',type='$type',created_at='$time',updated_at='$time'";
-        $this->query($sql);
-        $this->execute();
-        $this->logId = $this->lastInsertId();
+        $this->user->query($sql);
+        $this->user->execute();
+        $this->logId = $this->user->lastInsertId();
 
 
 
@@ -246,8 +251,8 @@ class Razorpay extends Database
         $time    = time();
 
         $sql  =  "UPDATE pg_log SET response='$response',updated_at='$time' WHERE user_id='$this->logId'";
-        $this->query($sql);
-        $this->execute();
+        $this->user->query($sql);
+        $this->user->execute();
        
 
 
