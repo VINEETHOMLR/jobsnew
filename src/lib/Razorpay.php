@@ -40,7 +40,11 @@ class Razorpay extends Database
 
        
        $response = $this->callcurl($request_params,RAZORPAY_URL.$this->url['1'],'POST');
-       $this->updateLog($response);
+
+       $response = 'test';
+
+       echo $this->logId;
+       $this->updateLog($response);exit;
        $response = json_decode($response,true);
 
        $status     = false;
@@ -250,7 +254,7 @@ class Razorpay extends Database
         $response = $log_params;
         $time    = time();
 
-        $sql  =  "UPDATE pg_log SET response='$response',updated_at='$time' WHERE user_id='$this->logId'";
+        $sql  =  "UPDATE pg_log SET response='$response',updated_at='$time' WHERE id='$this->logId'";
         $this->user->query($sql);
         $this->user->execute();
        
