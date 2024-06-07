@@ -37,7 +37,10 @@ class Razorpay extends Database
 
        $this->insertLog($log_params);
        $response = $this->callcurl($request_params,RAZORPAY_URL.$this->url['1'],'POST');
+
        $this->updateLog($response);
+
+       
        $response = json_decode($response,true);
 
        $status     = false;
@@ -91,7 +94,7 @@ class Razorpay extends Database
         $request_params['account_number']    = $params['account_number'];
         $request_params['ifsc']              = $params['ifsc'];
         $request_params['beneficiary_name']  = $params['beneficiary_name'];
-        $request_params['account_type']      = $params['account_type'];
+        //$request_params['account_type']      = $params['account_type'];
 
 
 
@@ -100,12 +103,13 @@ class Razorpay extends Database
         $log_params['account_number']    = $params['account_number'];
         $log_params['ifsc']              = $params['ifsc'];
         $log_params['beneficiary_name']  = $params['beneficiary_name'];
-        $log_params['account_type']      = $params['account_type'];
+       // $log_params['account_type']      = $params['account_type'];
         $log_params['log_type']          = '2'; //1-create bankaccount
         $log_params['user_id']           = $params['user_id'];
 
         $this->insertLog($log_params);
         $response = $this->callcurl($request_params,RAZORPAY_URL.$this->url['2'],'POST');
+
         $this->updateLog($response);
         $response = json_decode($response,true);
 
