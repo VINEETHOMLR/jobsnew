@@ -253,6 +253,46 @@ class Razorpay extends Database
 
     }
 
+    public function verifyPayment($params)
+    {
+
+       $request_params = [];
+       $razorpay_order_id            = $params['razorpay_order_id'];
+       $razorpay_payment_id          = $params['razorpay_payment_id'];
+       $razorpay_signature           = $params['razorpay_signature'];
+
+       $log_params = [];
+       $log_params['razorpay_order_id']            = $params['razorpay_order_id'];
+       $log_params['razorpay_payment_id']          = $params['razorpay_payment_id'];
+       $log_params['razorpay_signature']           = $params['razorpay_signature'];
+       
+       $log_params['log_type']  = '4'; //1-verify signature
+       $log_params['user_id']   = $params['user_id'];
+
+       $this->insertLog($log_params);
+
+       $generated_signature = hash_hmac('sha256', $razorpay_order_id . '|' . $razorpay_payment_id, RAZORPAY_SECRET);
+    
+       if($razorpay_signature==$generated_signature) {
+
+           $status = true;
+           $message = 'Successfully verified payment';
+
+       }else{
+
+          $status  = false; 
+          $message = '';
+
+       }
+
+       $return = [];
+       $return['status']        = $status;
+       $return['message']       = $message;
+
+       return $return;
+
+    }
+
     public function getCallCurl($url)
     {
 
