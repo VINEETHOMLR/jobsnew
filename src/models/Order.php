@@ -193,7 +193,7 @@ class Order extends Database
 
                 $this->execute();
 
-                $job_post_data = $this->Order->callsql("SELECT jobseeker_id,total_amount FROM `job_post` WHERE `id` = '".$params['post_id']."'  ",'row');
+                $job_post_data = $this->callsql("SELECT jobseeker_id,total_amount FROM `job_post` WHERE `id` = '".$params['post_id']."'  ",'row');
 
                 if(!empty($job_post_data))
                 {
@@ -202,7 +202,7 @@ class Order extends Database
                     $data['total_amount']                = $job_post_data['total_amount'];
 
 
-                    $account_id = $this->Order->callsql("SELECT account_id FROM `user_bank` WHERE `user_id` = '".$data['jobseeker_id']."'  AND status=1 ",'value');
+                    $account_id = $this->callsql("SELECT account_id FROM `user_bank` WHERE `user_id` = '".$data['jobseeker_id']."'  AND status=1 ",'value');
 
                     if(!empty($account_id))
                     {
