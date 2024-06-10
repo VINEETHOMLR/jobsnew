@@ -14,7 +14,7 @@ class Razorpay extends Database
         parent::__construct(Raise::params()[$db]);
         $this->rds = new RRedis();
         $this->logId = '';
-        $this->url = ['1'=>'contacts','2'=>'fund_accounts','3'=>'fund_accounts/','4'=>'orders/'];
+        $this->url = ['1'=>'contacts','2'=>'fund_accounts','3'=>'fund_accounts/','4'=>'orders/','5'=>'payments/'];
         $this->user = new User();
         
     }
@@ -271,9 +271,18 @@ class Razorpay extends Database
 
        $this->insertLog($log_params);
 
-       $generated_signature = hash_hmac('sha256', $razorpay_order_id . '|' . $razorpay_payment_id, RAZORPAY_SECRET);
+       $url = RAZORPAY_URL.$this->url['5'].$razorpay_payment_id;
+
+       $response = $this->getCallCurl($url);
+
+       $this->updateLog($response);
+        
+
+       $payment_details = json_decode($response, true);
+
+       //$generated_signature = hash_hmac('sha256', $razorpay_order_id . '|' . $razorpay_payment_id, RAZORPAY_SECRET);
     
-       if($razorpay_signature==$generated_signature) {
+       if (isset($payment_details['status']) && $payment_details['status'] == 'captured') {
 
            $status = true;
            $message = 'Successfully verified payment';
@@ -281,7 +290,7 @@ class Razorpay extends Database
        }else{
 
           $status  = false; 
-          $message = '';
+          $message = $payment_details['status'];
 
        }
 
