@@ -129,6 +129,9 @@ public function actionVerifyPayment()
     $params['razorpay_signature']       = $razorpay_signature;
 
     $params['oder_id']                  = $order_details['id'];
+
+    $params['oder_id']                  = $order_details['id'];
+    $params['post_id']                  = $order_details['post_id'];
     
     
     $response = $this->Order->verifyPayment($params);

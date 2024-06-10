@@ -14,7 +14,7 @@ class Razorpay extends Database
         parent::__construct(Raise::params()[$db]);
         $this->rds = new RRedis();
         $this->logId = '';
-        $this->url = ['1'=>'contacts','2'=>'fund_accounts','3'=>'fund_accounts/','4'=>'orders/','5'=>'payments/'];
+        $this->url = ['1'=>'contacts','2'=>'fund_accounts','3'=>'fund_accounts/','4'=>'orders/','5'=>'payments/','6'=>'payouts'];
         $this->user = new User();
         
     }
@@ -185,7 +185,7 @@ class Razorpay extends Database
     {
 
        $request_params = [];
-       $request_params['amount']            = $params['amount'];
+       $request_params['amount']            = $params['amount']*100;
        $request_params['receipt']           = $params['receipt'];
        $request_params['currency']          = "INR";
        $request_params['payment_capture']   = "1";
@@ -297,6 +297,81 @@ class Razorpay extends Database
        $return = [];
        $return['status']        = $status;
        $return['message']       = $message;
+
+       return $return;
+
+    }
+
+    
+    public function sendPayment($params)
+    {
+
+        $request_params = [];
+       
+        $request_params = [
+            'account_number'       => RAZORPAY_ACCOUNT,
+            'fund_account_id'      => $params['account_id'],
+            'amount'               => $params['total_amount'] * 100,
+            'currency'             => 'INR',
+            'mode'                 => 'IMPS',
+            'purpose'              => 'payout',
+            'queue_if_low_balance' => true,
+            'reference_id'         => time().$params['account_id'],
+        ];
+
+        $log_params = $request_params;
+        $log_params['log_type'] = '5';
+        $log_params['user_id']  = $params['user_id'];
+
+        $this->insertLog($log_params);
+
+        $responseapi = $this->callcurl($request_params,RAZORPAY_URL.$this->url['6'],'POST');
+
+        if(ENV == 'dev'){
+
+           $responseapi = '{
+              "id": "pout_HnJ7qY1Cp7bZ18",
+              "entity": "payout",
+              "fund_account_id": "fa_HnJ7z0fFztKmKq",
+              "amount": 50000,
+              "currency": "INR",
+              "status": "processed",
+              "purpose": "payout",
+              "utr": "UTR1234567890",
+              "mode": "IMPS",
+              "reference_id": "ref_HnJ7xG7nR5G2dZ",
+              "fees": 0,
+              "tax": 0,
+              "source": "balance",
+              "created_at": 1595677116
+            }';
+
+        }
+       
+       $this->updateLog($responseapi);
+       $response = json_decode($responseapi,true);
+
+       $status     = false;
+       $payout_id = '';
+
+       if(array_key_exists('id',$response)) {
+
+           $status = true;
+           $payout_id = $response['id'];
+           $message = 'Successfully payout done ';
+
+       }else{
+
+          $status  = false; 
+          $message = '';
+
+       }
+
+       $return = [];
+       $return['status']        = $status;
+       $return['payout_id']     = $payout_id;
+       $return['message']       = $message;
+       $return['response']      = $responseapi;
 
        return $return;
 

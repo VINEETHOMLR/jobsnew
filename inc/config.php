@@ -59,7 +59,7 @@ define('REDIS_DB', $config['redis']['dbname']);
 define('RAZORPAY_KEY', $config['razorpay_key']);
 define('RAZORPAY_SECRET', $config['razorpay_secret']);
 define('RAZORPAY_URL', $config['razorpay_url']);
-
+define('RAZORPAY_ACCOUNT', $config['razorpay_account']);
 
 //captcha setting
 //phpOption & secureOption is vendor specific one, if it absent in vendor array, then no need to set.

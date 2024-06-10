@@ -171,8 +171,6 @@ class Order extends Database
     function verifyPayment($params)
     {
 
-       
-
             $data['razorpay_order_id']      = $params['razorpay_order_id'];
             $data['razorpay_payment_id']    = $params['razorpay_payment_id'];
             $data['razorpay_signature']     = $params['razorpay_signature'];
@@ -195,7 +193,49 @@ class Order extends Database
 
                 $this->execute();
 
-                return true;
+                $job_post_data = $this->Order->callsql("SELECT jobseeker_id,total_amount FROM `job_post` WHERE `id` = '".$params['post_id']."'  ",'row');
+
+                if(!empty($job_post_data))
+                {
+
+                    $data['jobseeker_id']                = $job_post_data['jobseeker_id'];
+                    $data['total_amount']                = $job_post_data['total_amount'];
+
+
+                    $account_id = $this->Order->callsql("SELECT account_id FROM `user_bank` WHERE `user_id` = '".$data['jobseeker_id']."'  AND status=1 ",'value');
+
+                    if(!empty($account_id))
+                    {
+                        $data['account_id']                = $account_id;
+
+                        $payresponse = (new Razorpay)->sendPayment($data);
+
+                        if($payresponse['status']==true)
+                        {
+
+                            $query = " UPDATE  `job_post` SET  `payment_status`=:status,`updated_at`=:updated_at  WHERE id=:id ";
+                            $this->query($query);
+                            $this->bind(':status',   1);
+                            
+                            $this->bind(':updated_at',  time());
+                            $this->bind(':id',         $params['post_id']);
+
+                            $this->execute();
+
+
+                            return true;
+
+                        }
+                        
+                        
+                    }
+
+                    return false;
+
+                }
+
+                return false;
+                
             }
             else
             {   
