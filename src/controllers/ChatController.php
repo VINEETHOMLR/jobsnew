@@ -48,7 +48,7 @@ class ChatController extends Controller
         $params = [];
         $params['chat_id'] = $chat_id;
         $chatList = $this->chats->getMessages($params);
-        $data         = ['messageList'=>$chatList];
+        $data         = ['messageList'=>$chatList,'chat_id'=>$chat_id];
         return $this->renderAPI($data, 'Success', 'false', 'S01', 'true', 200);
 
     }
@@ -70,7 +70,7 @@ class ChatController extends Controller
         $params = [];
         $params['chat_id'] = $chat_id;
         $chatList = $this->chats->getMessages($params);
-        $data         = ['messageList'=>$chatList];
+        $data         = ['messageList'=>$chatList,'chat_id'=>$chat_id];
         return $this->renderAPI($data, 'Success', 'false', 'S01', 'true', 200);
 
     }
