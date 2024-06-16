@@ -224,6 +224,8 @@ class Chat extends Database
             $result[$key]['chat_id'] = $value['id'];
             $result[$key]['name']    = $name;
             $result[$key]['message']    = $lastMessage;
+            $result[$key]['jobseeker_id'] = $value['jobseeker_id'];
+            $result[$key]['employer_id'] = $value['employer_id'];
 
         }
 
