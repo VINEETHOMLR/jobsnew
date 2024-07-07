@@ -583,12 +583,13 @@ class Jobs extends Database
         $payment_status = $params['payment_status'];
         $id = $params['post_id'];
         $updated_at = time();
+        $total_amount  = $labour_cost+$material_cost;
 
-        $sql = "UPDATE $this->tableName SET labour_cost='$labour_cost',material_cost='$material_cost',payment_status='$payment_status',updated_at='$updated_at' WHERE id='$id'";
+        $sql = "UPDATE $this->tableName SET labour_cost='$labour_cost',material_cost='$material_cost',payment_status='$payment_status',updated_at='$updated_at',total_amount='$total_amount' WHERE id='$id'";
         $this->query($sql);
         $result = $this->execute();
 
-        $total_amount  = $labour_cost+$material_cost;
+       
         $name = $this->callsql("SELECT name FROM user WHERE id='$id'",'value');
         $employer_id  = $this->callsql("SELECT user_id FROM job_post WHERE id='$id'",'value');
 

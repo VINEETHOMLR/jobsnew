@@ -419,15 +419,15 @@ public function actionRequestMoney()
     }
 
     //check bank added
-    // $params = [];
-    // $params['user_id'] = $userId;
+    $params = [];
+    $params['user_id'] = $userId;
 
-    // $banks = $this->userbankmdl->getBanks($params);
-    // if(empty($banks)) {
+    $banks = $this->userbankmdl->getBanks($params);
+    if(empty($banks)) {
 
-    //     return $this->renderAPIError("Please add a bank account to proceed",''); 
+        return $this->renderAPIError("Please add a bank account to proceed",''); 
 
-    // }
+    }
     if(empty($labour_cost)) {
 
         return $this->renderAPIError("Please enter labour cost to proceed",''); 

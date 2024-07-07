@@ -27,9 +27,10 @@ class BankController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->usermdl = (new User);
+        $this->usermdl  = (new User);
         $this->userbank = (new UserBank);
         $this->razorpay = (new Razorpay);
+        $this->accountTypeArray = ['1'=>'savings','2'=>'current'];
         
     }
 
@@ -40,7 +41,7 @@ class BankController extends Controller
         $account_number    = issetGet($input,'account_number','');
         $ifsc              = issetGet($input,'ifsc','');
         $beneficiary_name  = issetGet($input,'beneficiary_name','');
-        //$account_type      = issetGet($input,'account_type','');
+        //$account_type      = issetGet($input,'account_type','');//1.savings,2-current
         $userObj = Raise::$userObj;
         $user_id = $userObj['id'];
 
@@ -50,7 +51,7 @@ class BankController extends Controller
             return $this->renderAPIError('Please login as employee',''); 
         }
 
-        $banks = $this->userbankmdl->getBanks(['user_id'=>$user_id]);
+        $banks = $this->userbank->getBanks(['user_id'=>$user_id]);
         if(!empty($banks)) {
 
             return $this->renderAPIError("Already added bank",''); 
@@ -79,13 +80,18 @@ class BankController extends Controller
 
         // }
 
-        // if(!empty($account_type) && !in_array($account_type, [])) {
+        // if(!empty($account_type) && !in_array($account_type, [1,2])) {
+
+        //     return $this->renderAPIError("Please enter valid account type to proceed",''); 
 
         // }
 
         $details = $this->usermdl->getDetails($user_id);
+
+
         $connect_id = $details['connect_id'];
         if(empty($details['connect_id'])) { //create connect id in razorpay
+            
             
             $params = [];
             $params['name']    = $details['name'];
@@ -93,6 +99,8 @@ class BankController extends Controller
             $params['type']    = 'customer';
             $params['user_id'] = $details['id'];
             $response = $this->razorpay->createAccount($params);
+
+           
             if($response['status'] && $response['connect_id']) {
 
                 $connect_id = $response['connect_id'];
@@ -113,7 +121,14 @@ class BankController extends Controller
         $params['ifsc']             = $ifsc;
         $params['beneficiary_name'] = $beneficiary_name;
         $params['contact_id']       = $connect_id;
+        $params['user_id']          = $user_id;
+        //$params['account_type']     = $this->accountTypeArray[$account_type];
+        $params['account_type']     = 'bank_account';
+
+        
         $bankCreateResponse = $this->razorpay->createBankAccount($params);
+
+       
         if($bankCreateResponse['status']) {
 
             return $this->renderAPI([], 'Successfully added bank', 'false', 'S01', 'true', 200);
@@ -235,6 +250,8 @@ class BankController extends Controller
         $params['ifsc']             = $ifsc;
         $params['beneficiary_name'] = $beneficiary_name;
         $params['contact_id']       = $connect_id;
+        $params['account_type']     = 'bank_account';
+        $params['user_id']          = $user_id;
         $bankCreateResponse = $this->razorpay->createBankAccount($params);
         if($bankCreateResponse['status']) {
 
@@ -262,6 +279,8 @@ class BankController extends Controller
         $params = [];
         $params['user_id'] = $user_id;
         $response = $this->razorpay->getBank($params);
+
+        
         $status = $response['status'];
         $bankDetails = $response['bankDetails'];
         return $this->renderAPI($bankDetails, 'Bank Data', 'false', 'S01', $status, 200);

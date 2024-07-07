@@ -91,19 +91,19 @@ class Razorpay extends Database
 
         $request_params = [];
         $request_params['contact_id']        = $params['contact_id'];
-        $request_params['account_number']    = $params['account_number'];
-        $request_params['ifsc']              = $params['ifsc'];
-        $request_params['beneficiary_name']  = $params['beneficiary_name'];
-        //$request_params['account_type']      = $params['account_type'];
+        $request_params['bank_account']['account_number']    = $params['account_number'];
+        $request_params['bank_account']['ifsc']              = $params['ifsc'];
+        $request_params['bank_account']['name']  = $params['beneficiary_name'];
+        $request_params['account_type']      = $params['account_type'];
 
 
 
         $log_params = [];
         $log_params['contact_id']        = $params['contact_id'];
-        $log_params['account_number']    = $params['account_number'];
-        $log_params['ifsc']              = $params['ifsc'];
-        $log_params['beneficiary_name']  = $params['beneficiary_name'];
-       // $log_params['account_type']      = $params['account_type'];
+        $log_params['bank_account']['account_number']    = $params['account_number'];
+        $log_params['bank_account']['ifsc']              = $params['ifsc'];
+        $log_params['bank_account']['name']              = $params['beneficiary_name'];
+        $log_params['account_type']      = $params['account_type'];
         $log_params['log_type']          = '2'; //1-create bankaccount
         $log_params['user_id']           = $params['user_id'];
 
@@ -152,23 +152,27 @@ class Razorpay extends Database
     {
 
         $user_id = $params['user_id'];
-        $sql = "SELECT id,account_id FROM user_bank WHERE user_id='$user_id' AND status='1' ORDER BY id DESC LIMIT 1";
-        $details = $this->user->callsql($sql,'row');
+        $sql     = "SELECT id,account_id FROM user_bank WHERE user_id='$user_id' AND status='1' ORDER BY id DESC LIMIT 1";
+        $details    = $this->user->callsql($sql,'row');
         $account_id = $details['account_id'];
         $id         = $details['id'];
 
         $callurl = RAZORPAY_URL.$this->url['3'].$account_id;
+
         $response = $this->getCallCurl($callurl);
+
+
+
         $response  = json_decode($response,true);
         $status = false;
         $bankDetails = [];
-        if(array_key_exists('id', $response)) {
+        if(array_key_exists('bank_account', $response)) {
 
             $status = true;  
             $bankDetails['id'] = $id;
-            $bankDetails['account_number'] = $response['account_number'];
-            $bankDetails['ifsc'] = $response['ifsc'];
-            $bankDetails['account_holder'] = $response['name'];
+            $bankDetails['account_number'] = $response['bank_account']['account_number'];
+            $bankDetails['ifsc'] = $response['bank_account']['ifsc'];
+            $bankDetails['account_holder'] = $response['bank_account']['name'];
 
         }
 
@@ -351,8 +355,14 @@ class Razorpay extends Database
             'mode'                 => 'IMPS',
             'purpose'              => 'payout',
             'queue_if_low_balance' => true,
-            'reference_id'         => time().$params['account_id'],
+            'reference_id'         => time(),
+            'narration' => 'Payout for services',
+    'notes' => [
+        'note_key' => 'note_value'
+    ]
         ];
+
+
 
         $log_params = $request_params;
         $log_params['log_type'] = '5';
@@ -360,7 +370,11 @@ class Razorpay extends Database
 
         $this->insertLog($log_params);
 
-        $responseapi = $this->callcurl($request_params,RAZORPAY_URL.$this->url['6'],'POST');
+        //echo RAZORPAY_URL.$this->url['6'];exit;
+
+        $responseapi = $this->callcurl($request_params,'https://api.razorpay.com/v1/payouts','POST');
+
+        $response = json_decode($responseapi,true);print_r($responseapi);exit;
 
         if(ENV == 'dev'){
 
@@ -383,22 +397,24 @@ class Razorpay extends Database
 
         }
        
-       $this->updateLog($responseapi);
-       $response = json_decode($responseapi,true);
+        $this->updateLog($responseapi);
+        $response = json_decode($responseapi,true);
 
-       $status     = false;
-       $payout_id = '';
 
-       if(array_key_exists('id',$response)) {
 
-           $status = true;
-           $payout_id = $response['id'];
-           $message = 'Successfully payout done ';
+        $status     = false;
+        $payout_id = '';
 
-       }else{
+        if(array_key_exists('id',$response)) {
 
-          $status  = false; 
-          $message = '';
+            $status = true;
+            $payout_id = $response['id'];
+            $message = 'Successfully payout done ';
+
+        }else{
+
+            $status  = false; 
+            $message = '';
 
        }
 
@@ -426,6 +442,9 @@ class Razorpay extends Database
         // Execute cURL request
         return $response = curl_exec($ch);
 
+
+
+
        
 
     }
@@ -447,6 +466,8 @@ class Razorpay extends Database
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => $method,
         CURLOPT_POSTFIELDS => json_encode($request), // Convert data to JSON format
+
+        
         CURLOPT_HTTPHEADER => array(
             'Content-Type: application/json',
             'Authorization: Basic ' . base64_encode("".RAZORPAY_KEY.":".RAZORPAY_SECRET.""), // Authorization header with API key and secret
