@@ -61,6 +61,9 @@ define('RAZORPAY_SECRET', $config['razorpay_secret']);
 define('RAZORPAY_URL', $config['razorpay_url']);
 define('RAZORPAY_ACCOUNT', $config['razorpay_account']);
 
+define('commission', $config['commission']);
+define('commissiontype', $config['commissiontype']);
+
 //captcha setting
 //phpOption & secureOption is vendor specific one, if it absent in vendor array, then no need to set.
 $captchaDefaultConfig = ["vendor" => ["phpCaptcha", "secureCaptha"],

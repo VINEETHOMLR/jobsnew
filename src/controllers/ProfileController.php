@@ -44,6 +44,20 @@ class ProfileController extends Controller
         $role_id    = issetGet($input,'role_id','');//1- employer,2-jobseeker
         $userObj = Raise::$userObj;
         $userId = $userObj['id'];
+
+        if(empty($userId)) {
+
+            return $this->renderAPIError('Invalid Token',''); 
+
+        }
+
+        $request = json_encode($input);
+
+
+        $sql = "INSERT INTO api_log_new SET request='$request',user_id='$userId'";
+$this->usermdl->query($sql);
+$this->usermdl->execute();
+
         if($userObj['role_id']!='2') {
             
             return $this->renderAPIError('Please login as employee',''); 

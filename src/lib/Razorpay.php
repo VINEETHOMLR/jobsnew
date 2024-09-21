@@ -108,10 +108,15 @@ class Razorpay extends Database
         $log_params['user_id']           = $params['user_id'];
 
         $this->insertLog($log_params);
+
+
         $response = $this->callcurl($request_params,RAZORPAY_URL.$this->url['2'],'POST');
 
         $this->updateLog($response);
         $response = json_decode($response,true);
+
+
+       
 
         $status     = false;
         $account_id = '';
@@ -345,22 +350,51 @@ class Razorpay extends Database
     public function sendPayment($params)
     {
 
+   
+
         $request_params = [];
+
+        //calculate commission amount
+
+        $amount = $params['total_amount'];
+        $type   = $params['type'];
+        $final_amount = $amount;
+        $commission = '0';
+
+      
+
+        if($type == '2') {
+
+          $commission = $this->calculateCommission($amount);
+          $final_amount = $amount-$commission;
+
+
+        }
+
+
+
+
        
         $request_params = [
             'account_number'       => RAZORPAY_ACCOUNT,
             'fund_account_id'      => $params['account_id'],
-            'amount'               => $params['total_amount'] * 100,
+            'amount'               => $final_amount * 100,
             'currency'             => 'INR',
             'mode'                 => 'IMPS',
             'purpose'              => 'payout',
             'queue_if_low_balance' => true,
-            'reference_id'         => time(),
+            'reference_id'         => (string)$params['post_id'],
             'narration' => 'Payout for services',
-    'notes' => [
-        'note_key' => 'note_value'
-    ]
+            'notes' => [
+                'note_key' => 'note_value',
+                'total'=>$amount,
+                'commission'=>$commission,
+                'amount_sent'=>$final_amount
+            ]
         ];
+
+
+        
 
 
 
@@ -372,9 +406,9 @@ class Razorpay extends Database
 
         //echo RAZORPAY_URL.$this->url['6'];exit;
 
-        $responseapi = $this->callcurl($request_params,'https://api.razorpay.com/v1/payouts','POST');
+        $responseapi = $this->callcurl($request_params,RAZORPAY_URL.$this->url['6'],'POST');
 
-        $response = json_decode($responseapi,true);print_r($responseapi);exit;
+        $response = json_decode($responseapi,true);
 
         if(ENV == 'dev'){
 
@@ -425,6 +459,37 @@ class Razorpay extends Database
        $return['response']      = $responseapi;
 
        return $return;
+
+    }
+
+    public function createVirtualAccount()
+    {
+
+        $data = [
+          'receivers' => [
+              'types' => ['bank_account']
+          ],
+          'description' => 'Test Virtual Account'
+        ];  
+
+
+       //echo $url = 'https://api.razorpay.com/v1/virtual_accounts';exit;
+
+$ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, 'https://api.razorpay.com/v1/virtual_accounts');
+curl_setopt($ch, CURLOPT_USERPWD, RAZORPAY_KEY . ':' . RAZORPAY_SECRET);
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Content-Type: application/json'
+]);
+
+$response = curl_exec($ch);
+        //$responseapi = $this->callcurl($data,$url,'POST');
+
+        print_r($response);exit;
+
 
     }
 
@@ -509,6 +574,22 @@ class Razorpay extends Database
        
 
 
+    }
+
+    public function calculateCommission($amount)
+    {
+        $commissionAmount = '0';
+        if(commissiontype == '1') { //percent
+
+            $commissionAmount = ($amount/100)*commission;
+
+        }else{//amount
+
+            $commissionAmount = commission;
+
+        } 
+
+        return  $commissionAmount;
 
     }
 

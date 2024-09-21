@@ -193,7 +193,7 @@ class Order extends Database
 
                 $this->execute();
 
-                $job_post_data = $this->callsql("SELECT jobseeker_id,total_amount FROM `job_post` WHERE `id` = '".$params['post_id']."'  ",'row');
+                $job_post_data = $this->callsql("SELECT * FROM `job_post` WHERE `id` = '".$params['post_id']."'  ",'row');
 
                 if(!empty($job_post_data))
                 {
@@ -206,7 +206,18 @@ class Order extends Database
 
                     if(!empty($account_id))
                     {
-                        $data['account_id']                = $account_id;
+                        
+
+
+                        $parent_category_id = $this->callsql("SELECT parent_category_id FROM category WHERE id='$job_post_data[category_id]'",'value');
+                        $parentCategoryType = $this->callsql("SELECT type FROM parent_category WHERE id='$parent_category_id'",'value');
+
+                        $data['account_id']   = $account_id;
+                        $data['total_amount'] = $job_post_data['total_amount'];
+                        $data['category_id']  = $job_post_data['category_id'];
+                        $data['user_id']      = $job_post_data['jobseeker_id'];
+                        $data['type']         = $parentCategoryType;
+                        $data['post_id']      = $job_post_data['id'];
 
                         $payresponse = (new Razorpay)->sendPayment($data);
 
@@ -220,10 +231,10 @@ class Order extends Database
                             $this->bind(':updated_at',  time());
                             $this->bind(':id',         $params['post_id']);
 
-                            $this->execute();
+                            return $this->execute();
 
 
-                            return true;
+                            
 
                         }
                         
