@@ -445,6 +445,15 @@ class Razorpay extends Database
             $payout_id = $response['id'];
             $message = 'Successfully payout done ';
 
+            $amount_sent        = $final_amount;
+            $commission_amount  = $commission;
+
+            $sql = "UPDATE job_post SET amount_sent='$amount_sent',commission_amount='$commission_amount' WHERE id='$params[post_id]'";
+            $this->user->query($sql);
+            $this->user->execute();
+
+
+
         }else{
 
             $status  = false; 

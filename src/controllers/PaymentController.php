@@ -104,19 +104,19 @@ public function actionVerifyPayment()
     $razorpay_payment_id         = issetGet($input,'razorpay_payment_id','0');
     $razorpay_signature         = issetGet($input,'razorpay_signature','0');
 
-    // if($userObj['role_id']!='1') {
-    //     return $this->renderAPIError("Please login as customer",''); 
-    // }
+    if($userObj['role_id']!='1') {
+        return $this->renderAPIError("Please login as customer",''); 
+    }
 
-    // if(empty($razorpay_order_id)){
-    //     return $this->renderAPIError("Invalid order id",'');
-    // }
-    // if(empty($razorpay_payment_id)){
-    //     return $this->renderAPIError("Invalid payment id",'');
-    // }
-    // if(empty($razorpay_signature)){
-    //     return $this->renderAPIError("Invalid singature",'');
-    // }
+    if(empty($razorpay_order_id)){
+        return $this->renderAPIError("Invalid order id",'');
+    }
+    if(empty($razorpay_payment_id)){
+        return $this->renderAPIError("Invalid payment id",'');
+    }
+    if(empty($razorpay_signature)){
+        return $this->renderAPIError("Invalid singature",'');
+    }
 
     $order_details = $this->Order->callsql("SELECT * FROM `order_details` WHERE `transaction_id` = '".$razorpay_order_id."' AND status=1 ",'row');
 
